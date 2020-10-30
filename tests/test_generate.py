@@ -31,7 +31,7 @@ from tests.test_modules import (
 )
 from tests.test_modules.generated import PeskySentinelUsageConf
 
-# chdir_hydra_root(subdir="tools/configen")
+chdir_hydra_root(subdir="tools/configen")
 
 ##
 # To re-generate the expected config run the following command from configen's root directory (tools/configen).
