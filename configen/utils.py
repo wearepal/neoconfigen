@@ -87,8 +87,7 @@ def convert_imports(imports: Set[Type], string_imports: Set[str]) -> List[str]:
 
 
 def collect_imports(imports: Set[Type], type_: Type) -> None:
-    args = get_args(type_)
-    for arg in args:
+    for arg in get_args(type_):
         collect_imports(imports, arg)
     if _resolve_optional(type_)[0] and type_ is not Any:
         type_ = Optional
