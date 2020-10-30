@@ -159,7 +159,7 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
 
             if missing_default:
                 if incompatible_annotation_type:
-                    default_ = f"MISSING  # {type_str(p.annotation)}"
+                    default_ = f"MISSING  # {type_str(type_)}"
                 elif incompatible_value_type:
                     default_ = f"MISSING  # {type_str(type(p.default))}"
                 else:
