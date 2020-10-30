@@ -60,8 +60,7 @@ def is_tuple_annotation(type_: Any) -> bool:
 
 
 def convert_imports(imports: Set[Type], string_imports: Set[str]) -> List[str]:
-    tmp = defaultdict(set)
-
+    tmp = set()
     for import_ in imports:
         origin = getattr(import_, "__origin__", None)
         if import_ is Any:
@@ -77,13 +76,10 @@ def convert_imports(imports: Set[Type], string_imports: Set[str]) -> List[str]:
                 classname = "Dict"
             else:
                 classname = import_.__name__
-
         if not is_primitive_type(import_) or issubclass(import_, Enum):
-            tmp[import_.__module__].add(classname)
+            tmp.add(f"from {import_.__module__} import {classname}")
 
-    tmp_flat = {f"from {key} import {', '.join(values)}" for key, values in tmp.items()}
-
-    return sorted(list(tmp_flat.union(string_imports)))
+    return sorted(list(tmp.union(string_imports)))
 
 
 def collect_imports(imports: Set[Type], type_: Type) -> None:

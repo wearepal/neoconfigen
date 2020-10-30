@@ -130,7 +130,7 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
         sig = inspect.signature(cls)
 
         for name, p in sig.parameters.items():
-            type_ = resolved_hints.get(name, p.annotation)
+            type_ = type_cached = resolved_hints.get(name, p.annotation)
             default_ = p.default
 
             missing_value = default_ == sig.empty
@@ -159,7 +159,7 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
 
             if missing_default:
                 if incompatible_annotation_type:
-                    default_ = f"MISSING  # {type_str(type_)}"
+                    default_ = f"MISSING  # {type_str(type_cached)}"
                 elif incompatible_value_type:
                     default_ = f"MISSING  # {type_str(type(p.default))}"
                 else:
