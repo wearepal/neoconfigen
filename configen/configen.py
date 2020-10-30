@@ -130,7 +130,7 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
         sig = inspect.signature(cls)
 
         for name, p in sig.parameters.items():
-            type_ = resolved_hints[name]
+            type_ = resolved_hints.get(name, p.annotation)
             default_ = p.default
 
             missing_value = default_ == sig.empty
