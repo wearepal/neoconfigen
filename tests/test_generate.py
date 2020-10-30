@@ -216,7 +216,7 @@ def test_example_application(monkeypatch: Any, tmpdir: Path):
         f"hydra.run.dir={tmpdir}",
         "user.name=Batman",
     ]
-    result, _err = get_run_output(cmd)
+    result, _err = get_run_output(cmd, env={"PYTHONPATH": ".."})
     assert result == dedent(
         """\
     User: name=Batman, age=7
