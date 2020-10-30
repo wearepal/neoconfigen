@@ -1,11 +1,11 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
-import inspect
-import logging
-import sys
 from dataclasses import dataclass
 from enum import Enum
+import inspect
+import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Type
+import sys
+from typing import Any, Dict, List, Optional, Set, Type, get_type_hints
 
 import hydra
 from jinja2 import Environment, PackageLoader, Template
@@ -54,9 +54,7 @@ def init_config(conf_dir: str) -> None:
 def save(cfg: ConfigenConf, module: str, code: str) -> None:
     module_path = module.replace(".", "/")
 
-    module_path_pattern = Template(cfg.module_path_pattern).render(
-        module_path=module_path
-    )
+    module_path_pattern = Template(cfg.module_path_pattern).render(module_path=module_path)
     path = Path(cfg.output_dir) / module_path_pattern
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(code)
@@ -127,22 +125,19 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
     for class_name in module.classes:
         full_name = f"{module.name}.{class_name}"
         cls = hydra.utils.get_class(full_name)
-        sig = inspect.signature(cls)
         params: List[Parameter] = []
+        resolved_hints = get_type_hints(cls.__init__)
+        sig = inspect.signature(cls)
 
         for name, p in sig.parameters.items():
-            type_ = p.annotation
+            type_ = resolved_hints[name]
             default_ = p.default
 
             missing_value = default_ == sig.empty
-            incompatible_value_type = not missing_value and is_incompatible(
-                type(default_)
-            )
+            incompatible_value_type = not missing_value and is_incompatible(type(default_))
 
             missing_annotation_type = type_ == sig.empty
-            incompatible_annotation_type = (
-                not missing_annotation_type and is_incompatible(type_)
-            )
+            incompatible_annotation_type = not missing_annotation_type and is_incompatible(type_)
 
             if missing_annotation_type or incompatible_annotation_type:
                 type_ = Any
@@ -157,11 +152,7 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
                     default_ = f"field(default_factory=lambda: {default_})"
 
             missing_default = missing_value
-            if (
-                incompatible_annotation_type
-                or incompatible_value_type
-                or missing_default
-            ):
+            if incompatible_annotation_type or incompatible_value_type or missing_default:
                 missing_default = True
 
             collect_imports(imports, type_)
