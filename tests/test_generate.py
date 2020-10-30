@@ -1,40 +1,37 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
-from textwrap import dedent
-
 from difflib import unified_diff
 from pathlib import Path
+from textwrap import dedent
 from typing import Any
 
-import pytest
-
+from hydra.test_utils.test_utils import chdir_hydra_root, get_run_output
 from hydra.utils import get_class, instantiate
 from omegaconf import OmegaConf
+import pytest
 
 from configen.config import ConfigenConf, ModuleConf
 from configen.configen import generate_module
-from hydra.test_utils.test_utils import chdir_hydra_root, get_run_output
 from tests.test_modules import (
-    User,
     Color,
-    Empty,
-    UntypedArg,
-    IntArg,
-    UnionArg,
-    WithLibraryClassArg,
-    LibraryClass,
-    IncompatibleDataclassArg,
-    IncompatibleDataclass,
-    WithStringDefault,
-    WithUntypedStringDefault,
-    ListValues,
     DictValues,
+    Empty,
+    IncompatibleDataclass,
+    IncompatibleDataclassArg,
+    IntArg,
+    LibraryClass,
+    ListValues,
     PeskySentinelUsage,
     Tuples,
+    UnionArg,
+    UntypedArg,
+    User,
+    WithLibraryClassArg,
+    WithStringDefault,
+    WithUntypedStringDefault,
 )
-
 from tests.test_modules.generated import PeskySentinelUsageConf
 
-chdir_hydra_root(subdir="tools/configen")
+# chdir_hydra_root(subdir="tools/configen")
 
 ##
 # To re-generate the expected config run the following command from configen's root directory (tools/configen).
@@ -104,9 +101,7 @@ def test_generated_code() -> None:
     "classname, params, args, kwargs, expected",
     [
         pytest.param("Empty", {}, [], {}, Empty(), id="Empty"),
-        pytest.param(
-            "UntypedArg", {"param": 11}, [], {}, UntypedArg(param=11), id="UntypedArg"
-        ),
+        pytest.param("UntypedArg", {"param": 11}, [], {}, UntypedArg(param=11), id="UntypedArg"),
         pytest.param(
             "UntypedArg",
             {},
@@ -116,12 +111,8 @@ def test_generated_code() -> None:
             id="UntypedArg_passthrough_lib_class",
         ),
         pytest.param("IntArg", {"param": 1}, [], {}, IntArg(param=1), id="IntArg"),
-        pytest.param(
-            "UnionArg", {"param": 1}, [], {}, UnionArg(param=1), id="UnionArg"
-        ),
-        pytest.param(
-            "UnionArg", {"param": 3.14}, [], {}, UnionArg(param=3.14), id="UnionArg"
-        ),
+        pytest.param("UnionArg", {"param": 1}, [], {}, UnionArg(param=1), id="UnionArg"),
+        pytest.param("UnionArg", {"param": 3.14}, [], {}, UnionArg(param=3.14), id="UnionArg"),
         # This is okay because Union is not supported and is treated as Any
         pytest.param(
             "UnionArg",
@@ -197,9 +188,7 @@ def test_generated_code() -> None:
             ),
             id="DictValues",
         ),
-        pytest.param(
-            "Tuples", {"t1": [1.0, 2.1]}, [], {}, Tuples(t1=(1.0, 2.1)), id="Tuples"
-        ),
+        pytest.param("Tuples", {"t1": [1.0, 2.1]}, [], {}, Tuples(t1=(1.0, 2.1)), id="Tuples"),
         pytest.param(
             "PeskySentinelUsage",
             {},

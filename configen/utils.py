@@ -62,11 +62,11 @@ def is_tuple_annotation(type_: Any) -> bool:
 def convert_imports(imports: Set[Type], string_imports: Set[str]) -> List[str]:
     tmp = defaultdict(set)
 
-    for t in imports:
-        origin = getattr(t, "__origin__", None)
-        if t is Any:
+    for import_ in imports:
+        origin = getattr(import_, "__origin__", None)
+        if import_ is Any:
             classname = "Any"
-        elif t is Optional:
+        elif import_ is Optional:
             classname = "Optional"
         else:
             if origin is list:
@@ -76,10 +76,10 @@ def convert_imports(imports: Set[Type], string_imports: Set[str]) -> List[str]:
             elif origin is dict:
                 classname = "Dict"
             else:
-                classname = t.__name__
+                classname = import_.__name__
 
-        if not is_primitive_type(t) or issubclass(t, Enum):
-            tmp[t.__module__].add(classname)
+        if not is_primitive_type(import_) or issubclass(import_, Enum):
+            tmp[import_.__module__].add(classname)
 
     tmp_flat = {f"from {key} import {', '.join(values)}" for key, values in tmp.items()}
 
@@ -88,7 +88,8 @@ def convert_imports(imports: Set[Type], string_imports: Set[str]) -> List[str]:
 
 def collect_imports(imports: Set[Type], type_: Type) -> None:
     for arg in get_args(type_):
-        collect_imports(imports, arg)
+        if arg is not Ellipsis:
+            collect_imports(imports, arg)
     if _resolve_optional(type_)[0] and type_ is not Any:
         type_ = Optional
     imports.add(type_)
