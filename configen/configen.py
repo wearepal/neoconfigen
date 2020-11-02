@@ -1,11 +1,22 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
 import inspect
 import logging
 from pathlib import Path
 import sys
-from typing import Any, Dict, List, Optional, Set, Type, get_type_hints
+from typing import (
+    Any,
+    Dict,
+    List,
+    Optional,
+    Set,
+    Type,
+    get_args,
+    get_origin,
+    get_type_hints,
+)
 
 import hydra
 from jinja2 import Environment, PackageLoader, Template
@@ -84,6 +95,7 @@ def is_incompatible(type_: Type[Any]) -> bool:
         return True
 
     type_ = opt[1]
+
     if type_ in (type(None), tuple, list, dict):
         return False
 
@@ -101,6 +113,15 @@ def is_incompatible(type_: Type[Any]) -> bool:
                 if arg is not ... and is_incompatible(arg):
                     return True
             return False
+        if get_origin(type_) is Callable:
+            args = get_args(type_)
+            for arg in args[0]:
+                if arg is not ... and is_incompatible(arg):
+                    return True
+            if is_incompatible(args[1]):
+                return True
+            return False
+
     except ValidationError:
         return True
 
@@ -127,16 +148,19 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
         cls = hydra.utils.get_class(full_name)
         params: List[Parameter] = []
         resolved_hints = get_type_hints(cls.__init__)
-        sig = inspect.signature(cls)
+        sig = inspect.signature(cls.__init__)
 
         for name, p in sig.parameters.items():
+            # Skip self as an attribute
+            if name == "self":
+                continue
             type_ = type_cached = resolved_hints.get(name, p.annotation)
             default_ = p.default
 
             missing_value = default_ == sig.empty
             incompatible_value_type = not missing_value and is_incompatible(type(default_))
 
-            missing_annotation_type = type_ == sig.empty
+            missing_annotation_type = type_ == name not in resolved_hints
             incompatible_annotation_type = not missing_annotation_type and is_incompatible(type_)
 
             if missing_annotation_type or incompatible_annotation_type:

@@ -2,7 +2,7 @@
 from collections import defaultdict
 from enum import Enum
 import sys
-from typing import Any, List, Optional, Set, Tuple, Type, get_args
+from typing import Any, List, Optional, Set, Tuple, Type, get_args, get_origin
 
 from omegaconf._utils import _resolve_optional, is_primitive_type
 
@@ -34,14 +34,14 @@ def type_str(t: Any) -> str:
             name = str(t.__name__)
         else:
             if t._name is None:
-                if t.__origin__ is not None:
+                if get_origin(t) is not None:
                     name = type_str(t.__origin__)
             else:
                 name = str(t._name)
 
-    args = getattr(t, "__args__", None)
+    args = get_args(t) if hasattr(t, "__args__") else None
     if args is not None:
-        args = ", ".join([type_str(t) for t in (list(t.__args__))])
+        args = ", ".join([type_str(t) for t in (list(args))])
         ret = f"{name}[{args}]"
     else:
         ret = name
@@ -84,7 +84,7 @@ def convert_imports(imports: Set[Type], string_imports: Set[str]) -> List[str]:
 
 def collect_imports(imports: Set[Type], type_: Type) -> None:
     for arg in get_args(type_):
-        if arg is not Ellipsis:
+        if arg is not ...:
             collect_imports(imports, arg)
     if _resolve_optional(type_)[0] and type_ is not Any:
         type_ = Optional
