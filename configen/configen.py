@@ -160,7 +160,7 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
             missing_value = default_ == sig.empty
             incompatible_value_type = not missing_value and is_incompatible(type(default_))
 
-            missing_annotation_type = type_ == name not in resolved_hints
+            missing_annotation_type = name not in resolved_hints
             incompatible_annotation_type = not missing_annotation_type and is_incompatible(type_)
 
             if missing_annotation_type or incompatible_annotation_type:
@@ -176,19 +176,19 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
                     default_ = f"field(default_factory=lambda: {default_})"
 
             missing_default = missing_value
-            if incompatible_annotation_type or incompatible_value_type or missing_default:
+            if incompatible_value_type:
                 missing_default = True
 
             collect_imports(imports, type_)
 
             if missing_default:
-                if incompatible_annotation_type:
-                    default_ = f"MISSING  # {type_str(type_cached)}"
-                elif incompatible_value_type:
-                    default_ = f"MISSING  # {type_str(type(p.default))}"
-                else:
-                    default_ = "MISSING"
+                default_ = "MISSING"
                 string_imports.add("from omegaconf import MISSING")
+
+            if incompatible_annotation_type:
+                default_ = f"{default_}  # {type_str(type_cached)}"
+            elif incompatible_value_type:
+                default_ = f"{default_}  # {type_str(type(p.default))}"
 
             params.append(
                 Parameter(
