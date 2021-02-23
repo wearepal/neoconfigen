@@ -197,10 +197,14 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
             default_ = p.default
 
             missing_value = default_ == sig.empty
-            incompatible_value_type = not missing_value and is_incompatible(type(default_))
+            incompatible_value_type = not missing_value and is_incompatible(
+                type(default_)
+            )
 
             missing_annotation_type = name not in resolved_hints
-            incompatible_annotation_type = not missing_annotation_type and is_incompatible(type_)
+            incompatible_annotation_type = (
+                not missing_annotation_type and is_incompatible(type_)
+            )
 
             if missing_annotation_type or incompatible_annotation_type:
                 type_ = Any
