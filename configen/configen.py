@@ -1,12 +1,12 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
+from dataclasses import dataclass
+from enum import Enum
 import inspect
 import logging
 import os
+from pathlib import Path
 import pkgutil
 import sys
-from dataclasses import dataclass
-from enum import Enum
-from pathlib import Path
 from textwrap import dedent
 from typing import (
     Any,
@@ -21,9 +21,8 @@ from typing import (
     get_type_hints,
 )
 
-from jinja2 import Environment, PackageLoader, Template
-
 import hydra
+from jinja2 import Environment, PackageLoader, Template
 from omegaconf import OmegaConf, ValidationError
 from omegaconf._utils import (
     _is_union,
@@ -74,9 +73,7 @@ def init_config(conf_dir: str) -> None:
 def save(cfg: ConfigenConf, module: str, code: str) -> None:
     module_path = module.replace(".", "/")
 
-    module_path_pattern = Template(cfg.module_path_pattern).render(
-        module_path=module_path
-    )
+    module_path_pattern = Template(cfg.module_path_pattern).render(module_path=module_path)
     path = Path(cfg.output_dir) / module_path_pattern
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(code)
@@ -197,15 +194,9 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
             default_ = p.default
 
             missing_value = default_ == sig.empty
-            incompatible_value_type = not missing_value and is_incompatible(
-                type(default_)
-            )
-
+            incompatible_value_type = not missing_value and is_incompatible(type(default_))
             missing_annotation_type = name not in resolved_hints
-            incompatible_annotation_type = (
-                not missing_annotation_type and is_incompatible(type_)
-            )
-
+            incompatible_annotation_type = not missing_annotation_type and is_incompatible(type_)
             if missing_annotation_type or incompatible_annotation_type:
                 type_ = Any
                 collect_imports(imports, Any)
@@ -264,19 +255,16 @@ def main(cfg: Config):
 
     if OmegaConf.is_missing(cfg.configen, "modules"):  # type: ignore
         log.error(
-            "Use --config-dir DIR."
-            "\nIf you have no config dir yet use the following command to create an initial config in the `conf` dir:"
-            "\n\tconfigen init_config_dir=conf"
-        )
-        dedent(
-            """\
-            Use --config-dir DIR --config-name NAME
-            e.g:
-            \tconfigen --config-dir conf --config-name configen
-            If you have no config dir yet use init_config_dir=DIR to create an initial config dir.
-            e.g:
-            \tconfigen init_config_dir=conf
-            """
+            dedent(
+                """\
+                Use --config-dir DIR --config-name NAME
+                e.g:
+                \tconfigen --config-dir conf --config-name configen
+                If you have no config dir yet use init_config_dir=DIR to create an initial config dir.
+                e.g:
+                \tconfigen init_config_dir=conf
+                """
+            )
         )
         sys.exit(1)
 
