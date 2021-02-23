@@ -4,7 +4,7 @@ from pathlib import Path
 from textwrap import dedent
 from typing import Any
 
-from hydra.test_utils.test_utils import chdir_hydra_root, get_run_output
+from hydra.test_utils.test_utils import chdir_hydra_root, run_python_script
 from hydra.utils import get_class, instantiate, ConvertMode
 from omegaconf import OmegaConf
 import pytest
@@ -31,7 +31,7 @@ from tests.test_modules import (
 )
 from tests.test_modules.generated import PeskySentinelUsageConf
 
-chdir_hydra_root(subdir="tools/configen")
+# chdir_hydra_root(subdir="tools/configen")
 
 ##
 # To re-generate the expected config run the following command from configen's root directory (tools/configen).
@@ -274,7 +274,7 @@ def test_example_application(monkeypatch: Any, tmpdir: Path):
         f"hydra.run.dir={tmpdir}",
         "user.name=Batman",
     ]
-    result, _err = get_run_output(cmd, env={"PYTHONPATH": ".."})
+    result, _err = run_python_script(cmd, env={"PYTHONPATH": ".."})
     assert result == dedent(
         """\
     User: name=Batman, age=7
