@@ -4,8 +4,11 @@ from dataclasses import dataclass
 from enum import Enum
 import inspect
 import logging
+import os
 from pathlib import Path
+import pkgutil
 import sys
+from textwrap import dedent
 from typing import (
     Any,
     Dict,
@@ -39,6 +42,10 @@ from configen.utils import (
     type_str,
 )
 
+# Adding the current working directory to the PYTHONPATH to allow generation of code
+# that is not installed properly
+sys.path.append(os.getcwd())
+
 log = logging.getLogger(__name__)
 
 jinja_env = Environment(
@@ -51,15 +58,15 @@ jinja_env.tests["empty"] = lambda x: x == inspect.Signature.empty
 
 def init_config(conf_dir: str) -> None:
     log.info(f"Initializing config in '{conf_dir}'")
-    template = jinja_env.get_template("sample_config.yaml")
     path = Path(hydra.utils.to_absolute_path(conf_dir))
     path.mkdir(parents=True, exist_ok=True)
     file = path / "configen.yaml"
     if file.exists():
-        raise IOError(f"Config file '{file}' already exists")
+        sys.stderr.write(f"Config file '{file}' already exists\n")
+        sys.exit(1)
 
-    sample_config = template.render()
-    file.write_text(sample_config)
+    sample_config = pkgutil.get_data(__name__, "templates/sample_config.yaml")
+    file.write_bytes(sample_config)
 
 
 def save(cfg: ConfigenConf, module: str, code: str) -> None:
@@ -213,7 +220,7 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
     )
 
 
-@hydra.main(config_name="configen")
+@hydra.main(config_name="configen_schema")
 def main(cfg: Config):
     if cfg.init_config_dir is not None:
         init_config(cfg.init_config_dir)
@@ -224,6 +231,16 @@ def main(cfg: Config):
             "Use --config-dir DIR."
             "\nIf you have no config dir yet use the following command to create an initial config in the `conf` dir:"
             "\n\tconfigen init_config_dir=conf"
+        )
+        dedent(
+            """\
+            Use --config-dir DIR --config-name NAME
+            e.g:
+            \tconfigen --config-dir conf --config-name configen
+            If you have no config dir yet use init_config_dir=DIR to create an initial config dir.
+            e.g:
+            \tconfigen init_config_dir=conf
+            """
         )
         sys.exit(1)
 
