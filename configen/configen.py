@@ -4,13 +4,13 @@ import logging
 import os
 import pkgutil
 import sys
-from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from textwrap import dedent
 from typing import (
     Any,
+    Callable,
     Dict,
     List,
     Optional,
@@ -106,7 +106,6 @@ def is_incompatible(type_: Type[Any]) -> bool:
         return True
 
     type_ = opt[1]
-
     if type_ in (type(None), tuple, list, dict):
         return False
 
