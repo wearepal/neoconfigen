@@ -4,7 +4,7 @@
 from setuptools import find_packages, setup
 
 setup(
-    name="configen",
+    name="neoconfigen",
     version="1.0.0",
     packages=find_packages(include=["configen"]),
     entry_points={"console_scripts": ["configen = configen.configen:main"]},
