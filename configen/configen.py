@@ -58,6 +58,7 @@ jinja_env.tests["empty"] = lambda x: x == inspect.Signature.empty
 
 def init_config(conf_dir: str) -> None:
     log.info(f"Initializing config in '{conf_dir}'")
+
     path = Path(hydra.utils.to_absolute_path(conf_dir))
     path.mkdir(parents=True, exist_ok=True)
     file = path / "configen.yaml"
@@ -72,7 +73,9 @@ def init_config(conf_dir: str) -> None:
 def save(cfg: ConfigenConf, module: str, code: str) -> None:
     module_path = module.replace(".", "/")
 
-    module_path_pattern = Template(cfg.module_path_pattern).render(module_path=module_path)
+    module_path_pattern = Template(cfg.module_path_pattern).render(
+        module_path=module_path
+    )
     path = Path(cfg.output_dir) / module_path_pattern
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(code)
