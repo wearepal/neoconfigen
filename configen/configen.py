@@ -191,7 +191,7 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
 
         for name, p in sig.parameters.items():
             # Skip self as an attribute
-            if name == "self":
+            if name in ("self", "args", "kwargs"):
                 continue
             type_ = type_cached = resolved_hints.get(name, p.annotation)
             default_ = p.default
