@@ -187,7 +187,7 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
         sig = inspect.signature(cls.__init__)
 
         for name, p in sig.parameters.items():
-            # Skip self as an attribute
+            # Skip self, args and kwargs as attributes
             if name in ("self", "args", "kwargs"):
                 continue
             type_ = type_cached = resolved_hints.get(name, p.annotation)
