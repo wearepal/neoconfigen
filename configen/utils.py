@@ -1,6 +1,5 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 import sys
-from collections import defaultdict
 from enum import Enum
 from typing import Any, List, Optional, Set, Tuple, Type, get_args, get_origin
 
@@ -41,8 +40,8 @@ def type_str(t: Any) -> str:
 
     args = get_args(t) if hasattr(t, "__args__") else None
     if args is not None:
-        args = ", ".join([type_str(t) for t in (list(args))])
-        ret = f"{name}[{args}]"
+        args_str = ", ".join([type_str(t) for t in (list(args))])
+        ret = f"{name}[{args_str}]"
     else:
         ret = name
     if is_optional:
