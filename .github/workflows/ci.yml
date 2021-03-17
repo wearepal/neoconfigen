@@ -20,6 +20,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install wheel
+        pip install pytest
         pip install -e .
     - name: Test with pytest
       run: |
@@ -80,7 +81,7 @@ jobs:
         pip install mypy
     - name: Type check with mypy
       run: |
-        mypy configen
+        mypy --python-version 3.8 configen
 
   check_yaml:
 

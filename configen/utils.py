@@ -40,8 +40,8 @@ def type_str(t: Any) -> str:
 
     args = get_args(t) if hasattr(t, "__args__") else None
     if args is not None:
-        args = ", ".join([type_str(t) for t in (list(args))])
-        ret = f"{name}[{args}]"
+        args_str = ", ".join([type_str(t) for t in (list(args))])
+        ret = f"{name}[{args_str}]"
     else:
         ret = name
     if is_optional:
