@@ -16,6 +16,4 @@ class Admin(User):
         self.private_key = private_key
 
     def __repr__(self):
-        return (
-            f"Admin: name={self.name}, age={self.age}, private_key={self.private_key}"
-        )
+        return f"Admin: name={self.name}, age={self.age}, private_key={self.private_key}"

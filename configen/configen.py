@@ -74,9 +74,7 @@ def init_config(conf_dir: str) -> None:
 def save(cfg: ConfigenConf, module: str, code: str) -> None:
     module_path = module.replace(".", "/")
 
-    module_path_pattern = Template(cfg.module_path_pattern).render(
-        module_path=module_path
-    )
+    module_path_pattern = Template(cfg.module_path_pattern).render(module_path=module_path)
     path = Path(cfg.output_dir) / module_path_pattern
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(code)
@@ -197,13 +195,9 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
             default_ = p.default
 
             missing_value = default_ == sig.empty
-            incompatible_value_type = not missing_value and is_incompatible(
-                type(default_)
-            )
+            incompatible_value_type = not missing_value and is_incompatible(type(default_))
             missing_annotation_type = name not in resolved_hints
-            incompatible_annotation_type = (
-                not missing_annotation_type and is_incompatible(type_)
-            )
+            incompatible_annotation_type = not missing_annotation_type and is_incompatible(type_)
             if missing_annotation_type or incompatible_annotation_type:
                 type_ = Any
                 collect_imports(imports, Any)
