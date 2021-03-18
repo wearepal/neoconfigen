@@ -1,12 +1,12 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
-from dataclasses import dataclass
-from enum import Enum
 import inspect
 import logging
 import os
-from pathlib import Path
 import pkgutil
 import sys
+from dataclasses import dataclass
+from enum import Enum
+from pathlib import Path
 from textwrap import dedent
 from typing import (
     Any,
@@ -23,13 +23,6 @@ from typing import (
 
 from jinja2 import Environment, PackageLoader, Template
 
-from configen.config import Config, ConfigenConf, ModuleConf
-from configen.utils import (
-    collect_imports,
-    convert_imports,
-    is_tuple_annotation,
-    type_str,
-)
 import hydra
 from omegaconf import OmegaConf, ValidationError
 from omegaconf._utils import (
@@ -40,6 +33,14 @@ from omegaconf._utils import (
     is_dict_annotation,
     is_list_annotation,
     is_structured_config,
+)
+
+from configen.config import Config, ConfigenConf, ModuleConf
+from configen.utils import (
+    collect_imports,
+    convert_imports,
+    is_tuple_annotation,
+    type_str,
 )
 
 # Adding the current working directory to the PYTHONPATH to allow generation of code
