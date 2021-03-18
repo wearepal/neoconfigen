@@ -39,6 +39,7 @@ jobs:
     - name: Test with pytest
       run: |
         python -m pytest -vv tests/
+
   lint_with_flake8:
 
     runs-on: ubuntu-latest
@@ -56,6 +57,7 @@ jobs:
     - name: Lint with pylint
       run: |
         flake8 configen
+
   format_with_black_and_isort:
 
     runs-on: ubuntu-latest
@@ -76,6 +78,7 @@ jobs:
     - name: Format with isort
       run: |
         isort . --check --diff
+
   type_check_with_mypy:
 
     runs-on: ubuntu-latest
@@ -93,6 +96,7 @@ jobs:
     - name: Type check with mypy
       run: |
         mypy --python-version 3.8 configen
+
   check_yaml:
 
     runs-on: ubuntu-latest
