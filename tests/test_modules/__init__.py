@@ -54,17 +54,17 @@ class IntArg:
         return isinstance(other, type(self)) and other.param == self.param
 
 
-# class Args:
-#     def __init__(self, *args: Any):
-#         self.param = args
+class Args:
+    def __init__(self, *args: Any):
+        self.param = args
 
 
-# class Kwargs:
-#     def __init__(self, **kwargs: Any):
-#         self.param = kwargs
+class Kwargs:
+    def __init__(self, **kwargs: Any):
+        self.param = kwargs
 
-#     def __eq__(self, other):
-#         return isinstance(other, type(self)) and other.param == self.param
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and other.param == self.param
 
 
 class UnionArg:
