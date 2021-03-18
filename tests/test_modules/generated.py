@@ -6,14 +6,15 @@
 # flake8: noqa
 
 from dataclasses import dataclass, field
-from omegaconf import MISSING
-from tests.test_modules import Color
-from tests.test_modules import User
 from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
+
+from omegaconf import MISSING
+from tests.test_modules import Color
+from tests.test_modules import User
 
 
 @dataclass
@@ -38,6 +39,13 @@ class UnionArgConf:
     _target_: str = "tests.test_modules.UnionArg"
     param: Any = MISSING  # Union[int, float]
 
+@dataclass
+class ArgsConf:
+    _target_: str = "tests.test_modules.Args"
+
+@dataclass
+class KwargsConf:
+    _target_: str = "tests.test_modules.Kwargs"
 
 @dataclass
 class WithLibraryClassArgConf:

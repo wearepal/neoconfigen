@@ -1,7 +1,7 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from omegaconf import MISSING
 
@@ -52,6 +52,19 @@ class IntArg:
 
     def __eq__(self, other):
         return isinstance(other, type(self)) and other.param == self.param
+
+
+# class Args:
+#     def __init__(self, *args: Any):
+#         self.param = args
+
+
+# class Kwargs:
+#     def __init__(self, **kwargs: Any):
+#         self.param = kwargs
+
+#     def __eq__(self, other):
+#         return isinstance(other, type(self)) and other.param == self.param
 
 
 class UnionArg:
