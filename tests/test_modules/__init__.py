@@ -69,11 +69,7 @@ class WithLibraryClassArg:
         self.param = param
 
     def __eq__(self, other):
-        return (
-            isinstance(other, type(self))
-            and other.num == self.num
-            and other.param == self.param
-        )
+        return isinstance(other, type(self)) and other.num == self.num and other.param == self.param
 
 
 @dataclass

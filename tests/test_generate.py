@@ -101,9 +101,7 @@ def test_generated_code() -> None:
     "classname, default_flags, expected_filename",
     [
         pytest.param("Empty", Flags(), "noflags.py", id="noflags"),
-        pytest.param(
-            "Empty", Flags(_convert_=ConvertMode.ALL), "convert.py", id="convert"
-        ),
+        pytest.param("Empty", Flags(_convert_=ConvertMode.ALL), "convert.py", id="convert"),
         pytest.param("Empty", Flags(_recursive_=True), "recursive.py", id="recursive"),
         pytest.param(
             "Empty",
@@ -119,16 +117,12 @@ def test_generated_code() -> None:
 def test_generated_code_with_default_flags(
     classname: str, default_flags: Flags, expected_filename: str
 ) -> None:
-    expected_file = (
-        Path(MODULE_NAME.replace(".", "/")) / "default_flags" / expected_filename
-    )
+    expected_file = Path(MODULE_NAME.replace(".", "/")) / "default_flags" / expected_filename
     expected = expected_file.read_text()
 
     generated = generate_module(
         cfg=conf,
-        module=ModuleConf(
-            name=MODULE_NAME, classes=[classname], default_flags=default_flags
-        ),
+        module=ModuleConf(name=MODULE_NAME, classes=[classname], default_flags=default_flags),
     )
 
     lines = [
@@ -151,9 +145,7 @@ def test_generated_code_with_default_flags(
     "classname, params, args, kwargs, expected",
     [
         pytest.param("Empty", {}, [], {}, Empty(), id="Empty"),
-        pytest.param(
-            "UntypedArg", {"param": 11}, [], {}, UntypedArg(param=11), id="UntypedArg"
-        ),
+        pytest.param("UntypedArg", {"param": 11}, [], {}, UntypedArg(param=11), id="UntypedArg"),
         pytest.param(
             "UntypedArg",
             {},
@@ -163,12 +155,8 @@ def test_generated_code_with_default_flags(
             id="UntypedArg_passthrough_lib_class",
         ),
         pytest.param("IntArg", {"param": 1}, [], {}, IntArg(param=1), id="IntArg"),
-        pytest.param(
-            "UnionArg", {"param": 1}, [], {}, UnionArg(param=1), id="UnionArg"
-        ),
-        pytest.param(
-            "UnionArg", {"param": 3.14}, [], {}, UnionArg(param=3.14), id="UnionArg"
-        ),
+        pytest.param("UnionArg", {"param": 1}, [], {}, UnionArg(param=1), id="UnionArg"),
+        pytest.param("UnionArg", {"param": 3.14}, [], {}, UnionArg(param=3.14), id="UnionArg"),
         # This is okay because Union is not supported and is treated as Any
         pytest.param(
             "UnionArg",
@@ -244,9 +232,7 @@ def test_generated_code_with_default_flags(
             ),
             id="DictValues",
         ),
-        pytest.param(
-            "Tuples", {"t1": [1.0, 2.1]}, [], {}, Tuples(t1=(1.0, 2.1)), id="Tuples"
-        ),
+        pytest.param("Tuples", {"t1": [1.0, 2.1]}, [], {}, Tuples(t1=(1.0, 2.1)), id="Tuples"),
         pytest.param(
             "PeskySentinelUsage",
             {},

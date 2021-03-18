@@ -9,6 +9,8 @@ jobs:
   test_with_pytest:
 
     runs-on: ubuntu-latest
+    env:
+      POETRY_VIRTUALENVS_CREATE: false
 
     steps:
     - uses: actions/checkout@v2
@@ -16,12 +18,24 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: 3.8
-    - name: Install dependencies
+    - name: Set up Poetry cache for Python dependencies
+      uses: actions/cache@v2
+      if: startsWith(runner.os, 'Linux')
+      with:
+        path: ~/.cache/pypoetry
+        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: ${{ runner.os }}-poetry-
+    - name: Install Poetry
       run: |
-        python -m pip install --upgrade pip
-        pip install wheel
-        pip install pytest omegaconf==2.1.0.dev20 hydra-core==1.1.0.dev4
-        pip install -e .
+        curl -fsS -o get-poetry.py https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py
+        python get-poetry.py -y
+        echo "$HOME/.poetry/bin" >> $GITHUB_PATH
+        rm get-poetry.py
+    - name: Install dependencies
+      run: poetry install --no-interaction
+    - name: Install CI dependencies
+      # TODO: do this with poetry extras
+      run: pip install pytest omegaconf==2.1.0.dev20 hydra-core==1.1.0.dev4
     - name: Test with pytest
       run: |
         python -m pytest -vv tests/
