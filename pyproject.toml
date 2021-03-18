@@ -1,3 +1,17 @@
+[tool.poetry]
+name = "neoconfigen"
+authors = ["Omry Yadan", "Rosario Scalise", "PAL"]
+description = "A fork of hydra-core's configen with support for annotations."
+version = "1.0.0"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+hydra-core = "^1.1.0dev1"
+jinja2 = "^2.11.3"
+
+[tool.poetry.scripts]
+configen = 'configen.configen:main'
+
 [tool.black]
 line-length = 88
 target-version = ['py38']
