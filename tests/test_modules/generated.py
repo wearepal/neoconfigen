@@ -34,6 +34,16 @@ class IntArgConf:
 
 
 @dataclass
+class ArgsConf:
+    _target_: str = "tests.test_modules.Args"
+
+
+@dataclass
+class KwargsConf:
+    _target_: str = "tests.test_modules.Kwargs"
+
+
+@dataclass
 class UnionArgConf:
     _target_: str = "tests.test_modules.UnionArg"
     param: Any = MISSING  # Union[int, float]

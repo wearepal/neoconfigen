@@ -4,13 +4,12 @@ from pathlib import Path
 from textwrap import dedent
 from typing import Any
 
-from hydra.test_utils.test_utils import chdir_hydra_root, run_python_script
-from hydra.utils import get_class, instantiate, ConvertMode
-from omegaconf import OmegaConf
-import pytest
-
 from configen.config import ConfigenConf, Flags, ModuleConf
 from configen.configen import generate_module
+from hydra.test_utils.test_utils import chdir_hydra_root, run_python_script
+from hydra.utils import ConvertMode, get_class, instantiate
+from omegaconf import OmegaConf
+import pytest
 from tests.test_modules import (
     Color,
     DictValues,
@@ -60,6 +59,8 @@ def test_generated_code() -> None:
         "Empty",
         "UntypedArg",
         "IntArg",
+        "Args",
+        "Kwargs",
         "UnionArg",
         "WithLibraryClassArg",
         "IncompatibleDataclassArg",
