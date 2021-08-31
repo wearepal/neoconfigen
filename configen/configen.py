@@ -121,12 +121,18 @@ def is_incompatible(type_: Type[Any]) -> bool:
                 if arg is not ... and is_incompatible(arg):
                     return True
             return False
-        if get_origin(type_) is Callable:
+        origin = get_origin(type_)
+        if origin is Callable:
             args = get_args(type_)
             for arg in args[0]:
                 if arg is not ... and is_incompatible(arg):
                     return True
             if is_incompatible(args[1]):
+                return True
+            return False
+        if origin is type:
+            args = get_args(type_)
+            if is_incompatible(args[0]):
                 return True
             return False
 
@@ -188,32 +194,44 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
         sig = inspect.signature(cls.__init__)
 
         for name, p in sig.parameters.items():
-            # Skip self as an attribute
+            # Skip self as an attribute.
             if name in ("self", "args", "kwargs"):
                 continue
             type_ = type_cached = resolved_hints.get(name, p.annotation)
             default_ = p.default
 
             missing_value = default_ == sig.empty
-            incompatible_value_type = not missing_value and is_incompatible(type(default_))
-            missing_annotation_type = name not in resolved_hints
-            incompatible_annotation_type = not missing_annotation_type and is_incompatible(type_)
-            if missing_annotation_type or incompatible_annotation_type:
-                type_ = Any
-                collect_imports(imports, Any)
 
             if not missing_value:
-                if type_ == str or type(default_) == str:
+                import_name = None
+                module_name = getattr(default_, "__module__", None)
+                if module_name is not None:
+                    if hasattr(default_, "__name__"):
+                        import_name = default_.__name__
+                        default_ = import_name
+                    elif hasattr(default_, "__class__"):
+                        import_name = default_.__class__.__name__
+                    if import_name is not None:
+                        string_imports.add(f"from {module_name} import {import_name}")
+                    # Import is untraceable.
+                    else:
+                        default_ = f"{default_}  # {type_str(type(p.default))}"
+                        missing_default = True
+
+                if (import_name is None) and (type_ == str or type(default_) == str):
                     default_ = f'"{default_}"'
                 elif isinstance(default_, list):
                     default_ = f"field(default_factory=lambda: {default_})"
                 elif isinstance(default_, dict):
                     default_ = f"field(default_factory=lambda: {default_})"
 
-            missing_default = missing_value
-            if incompatible_value_type:
-                missing_default = True
+            missing_annotation_type = name not in resolved_hints
+            incompatible_annotation_type = not missing_annotation_type and is_incompatible(type_)
+            if missing_annotation_type or incompatible_annotation_type:
+                type_ = Any
+                collect_imports(imports, Any)
 
+            missing_default = missing_value
             collect_imports(imports, type_)
 
             if missing_default:
@@ -222,8 +240,6 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
 
             if incompatible_annotation_type:
                 default_ = f"{default_}  # {type_str(type_cached)}"
-            elif incompatible_value_type:
-                default_ = f"{default_}  # {type_str(type(p.default))}"
 
             params.append(
                 Parameter(
