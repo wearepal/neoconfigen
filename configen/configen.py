@@ -201,37 +201,32 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
             default_ = p.default
 
             missing_value = default_ == sig.empty
+            incompatible_value_type = not missing_value and is_incompatible(type(default_))
+            missing_annotation_type = name not in resolved_hints
+            incompatible_annotation_type = not missing_annotation_type and is_incompatible(type_)
+
+            if isinstance(default_, Enum):
+                module_name = getattr(default_, "__module__", None)
+                if module_name is not None:  # Import required
+                    import_name = default_.__class__.__name__
+                    string_imports.add(f"from {module_name} import {import_name}")
+
+            if missing_annotation_type or incompatible_annotation_type:
+                type_ = Any
+                collect_imports(imports, Any)
 
             if not missing_value:
-                import_name = None
-                module_name = getattr(default_, "__module__", None)
-                if module_name is not None:
-                    if hasattr(default_, "__name__"):
-                        import_name = default_.__name__
-                        default_ = import_name
-                    elif hasattr(default_, "__class__"):
-                        import_name = default_.__class__.__name__
-                    if import_name is not None:
-                        string_imports.add(f"from {module_name} import {import_name}")
-                    # Import is untraceable.
-                    else:
-                        default_ = f"{default_}  # {type_str(type(p.default))}"
-                        missing_default = True
-
-                if (import_name is None) and (type_ == str or type(default_) == str):
+                if type_ == str or type(default_) == str:
                     default_ = f'"{default_}"'
                 elif isinstance(default_, list):
                     default_ = f"field(default_factory=lambda: {default_})"
                 elif isinstance(default_, dict):
                     default_ = f"field(default_factory=lambda: {default_})"
 
-            missing_annotation_type = name not in resolved_hints
-            incompatible_annotation_type = not missing_annotation_type and is_incompatible(type_)
-            if missing_annotation_type or incompatible_annotation_type:
-                type_ = Any
-                collect_imports(imports, Any)
-
             missing_default = missing_value
+            if incompatible_value_type:
+                missing_default = True
+
             collect_imports(imports, type_)
 
             if missing_default:
@@ -240,12 +235,14 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
 
             if incompatible_annotation_type:
                 default_ = f"{default_}  # {type_str(type_cached)}"
+            elif incompatible_value_type:
+                default_ = f"{default_}  # {type_str(type(p.default))}"  # if not missing_value:
 
             params.append(
                 Parameter(
                     name=name,
                     type_str=type_str(type_),
-                    default=default_,
+                    default=str(default_),
                 )
             )
         classes_map[class_name] = ClassInfo(

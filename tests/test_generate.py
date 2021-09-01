@@ -4,12 +4,11 @@ from pathlib import Path
 from textwrap import dedent
 from typing import Any
 
-from configen.config import ConfigenConf, Flags, ModuleConf
-from configen.configen import generate_module
+import pytest
+
 from hydra.test_utils.test_utils import chdir_hydra_root, run_python_script
 from hydra.utils import ConvertMode, get_class, instantiate
 from omegaconf import OmegaConf
-import pytest
 from tests.test_modules import (
     Color,
     DictValues,
@@ -29,6 +28,9 @@ from tests.test_modules import (
     WithUntypedStringDefault,
 )
 from tests.test_modules.generated import PeskySentinelUsageConf
+
+from configen.config import ConfigenConf, Flags, ModuleConf
+from configen.configen import generate_module
 
 # chdir_hydra_root(subdir="tools/configen")
 
