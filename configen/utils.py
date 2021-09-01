@@ -41,8 +41,8 @@ def type_str(t: Any) -> str:
     args = get_args(t) if hasattr(t, "__args__") else None
     if name == "Callable":
         in_args_str = ", ".join([type_str(t) for t in args[0]])
-        out_args_str = args[1]
-        ret = f"{name}[{in_args_str}, {out_args_str}]"
+        out_args_str = type_str(args[1])
+        ret = f"{name}[[{in_args_str}], {out_args_str}]"
     if args is not None:
         args_str = ", ".join([type_str(t) for t in (list(args))])
         ret = f"{name}[{args_str}]"
