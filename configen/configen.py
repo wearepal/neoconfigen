@@ -123,14 +123,10 @@ def is_incompatible(type_: Type[Any]) -> bool:
                     return True
             return False
         origin = get_origin(type_)
-        if origin is Callable:
-            args = get_args(type_)
-            for arg in args[0]:
-                if arg is not ... and is_incompatible(arg):
-                    return True
-            if is_incompatible(args[1]):
-                return True
-            return False
+        # Callable isn't a class so the subsequent issubclass check would raise
+        # a rype-error if called on it
+        if isinstance(origin, Callable):
+            return True
         if origin is type:
             args = get_args(type_)
             if is_incompatible(args[0]):
