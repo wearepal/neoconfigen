@@ -68,6 +68,7 @@ def init_config(conf_dir: str) -> None:
         sys.exit(1)
 
     sample_config = pkgutil.get_data(__name__, "templates/sample_config.yaml")
+    assert sample_config is not None
     file.write_bytes(sample_config)
 
 
@@ -121,12 +122,18 @@ def is_incompatible(type_: Type[Any]) -> bool:
                 if arg is not ... and is_incompatible(arg):
                     return True
             return False
-        if get_origin(type_) is Callable:
+        origin = get_origin(type_)
+        if origin is Callable:
             args = get_args(type_)
             for arg in args[0]:
                 if arg is not ... and is_incompatible(arg):
                     return True
             if is_incompatible(args[1]):
+                return True
+            return False
+        if origin is type:
+            args = get_args(type_)
+            if is_incompatible(args[0]):
                 return True
             return False
 
@@ -165,7 +172,7 @@ def get_default_flags(module: ModuleConf) -> List[Parameter]:
             Parameter(
                 name="_recursive_",
                 type_str="bool",
-                default=module.default_flags._recursive_,
+                default=str(module.default_flags._recursive_),
             )
         )
 
@@ -188,7 +195,7 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
         sig = inspect.signature(cls.__init__)
 
         for name, p in sig.parameters.items():
-            # Skip self as an attribute
+            # Skip self as an attribute.
             if name in ("self", "args", "kwargs"):
                 continue
             type_ = type_cached = resolved_hints.get(name, p.annotation)
@@ -198,6 +205,13 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
             incompatible_value_type = not missing_value and is_incompatible(type(default_))
             missing_annotation_type = name not in resolved_hints
             incompatible_annotation_type = not missing_annotation_type and is_incompatible(type_)
+
+            if isinstance(default_, Enum):
+                module_name = getattr(default_, "__module__", None)
+                if module_name is not None:  # Import required
+                    import_name = default_.__class__.__name__
+                    string_imports.add(f"from {module_name} import {import_name}")
+
             if missing_annotation_type or incompatible_annotation_type:
                 type_ = Any
                 collect_imports(imports, Any)
@@ -223,13 +237,13 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
             if incompatible_annotation_type:
                 default_ = f"{default_}  # {type_str(type_cached)}"
             elif incompatible_value_type:
-                default_ = f"{default_}  # {type_str(type(p.default))}"
+                default_ = f"{default_}  # {type_str(type(p.default))}"  # if not missing_value:
 
             params.append(
                 Parameter(
                     name=name,
                     type_str=type_str(type_),
-                    default=default_,
+                    default=str(default_),
                 )
             )
         classes_map[class_name] = ClassInfo(
