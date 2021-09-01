@@ -68,6 +68,7 @@ def init_config(conf_dir: str) -> None:
         sys.exit(1)
 
     sample_config = pkgutil.get_data(__name__, "templates/sample_config.yaml")
+    assert sample_config is not None
     file.write_bytes(sample_config)
 
 
@@ -171,7 +172,7 @@ def get_default_flags(module: ModuleConf) -> List[Parameter]:
             Parameter(
                 name="_recursive_",
                 type_str="bool",
-                default=module.default_flags._recursive_,
+                default=str(module.default_flags._recursive_),
             )
         )
 
