@@ -18,13 +18,13 @@ def type_str(type_: Any) -> str:
 
     if sys.version_info < (3, 7, 0):  # pragma: no cover
         # Python 3.6
-        if hasattr(t, "__name__"):
-            name = str(t.__name__)
+        if hasattr(type_, "__name__"):
+            name = str(type_.__name__)
         else:
-            if t.__origin__ is not None:
-                name = type_str(t.__origin__)
+            if type_.__origin__ is not None:
+                name = type_str(type_.__origin__)
             else:
-                name = str(t)
+                name = str(type_)
                 if name.startswith("typing."):
                     name = name[len("typing.") :]
     else:  # pragma: no cover
