@@ -7,13 +7,13 @@ from omegaconf._utils import _resolve_optional, is_primitive_type
 
 
 # borrowed from OmegaConf
-def type_str(t: Any) -> str:
-    is_optional, t = _resolve_optional(t)
-    if t is None:
-        return type(t).__name__
-    if t is Any:
+def type_str(type_: Any) -> str:
+    is_optional, type_ = _resolve_optional(type_)
+    if type_ is None:
+        return type(type_).__name__
+    if type_ is Any:
         return "Any"
-    if t is ...:
+    if type_ is ...:
         return "..."
 
     if sys.version_info < (3, 7, 0):  # pragma: no cover
@@ -29,22 +29,26 @@ def type_str(t: Any) -> str:
                     name = name[len("typing.") :]
     else:  # pragma: no cover
         # Python >= 3.7
-        if hasattr(t, "__name__"):
-            name = str(t.__name__)
+        if hasattr(type_, "__name__"):
+            name = str(type_.__name__)
         else:
-            if t._name is None:
-                if get_origin(t) is not None:
-                    name = type_str(t.__origin__)
+            if type_._name is None:
+                if get_origin(type_) is not None:
+                    name = type_str(type_.__origin__)
             else:
-                name = str(t._name)
+                name = str(type_._name)
 
-    args = get_args(t) if hasattr(t, "__args__") else None
+    args = get_args(type_) if hasattr(type_, "__args__") else None
+    # Callable needs to be special-cased: its args come in the form of a
+    # tuple and the string needs to be formatted such that the first argument
+    # is a list of input types (which need to be joined with ','s, as for lists
+    # and tuples) and the second argument is the return type.
     if name == "Callable":
-        in_args_str = ", ".join([type_str(t) for t in args[0]])
+        in_args_str = ", ".join([type_str(inner_type) for inner_type in args[0]])
         out_args_str = type_str(args[1])
         ret = f"{name}[[{in_args_str}], {out_args_str}]"
-    if args is not None:
-        args_str = ", ".join([type_str(t) for t in (list(args))])
+    elif args is not None:
+        args_str = ", ".join([type_str(inner_type) for inner_type in (list(args))])
         ret = f"{name}[{args_str}]"
     else:
         ret = name
