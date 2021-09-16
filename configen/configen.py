@@ -8,19 +8,10 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from textwrap import dedent
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    List,
-    Optional,
-    Set,
-    Type,
-    get_type_hints,
-)
-from typing_inspect import get_args, get_origin
+from typing import Any, Callable, Dict, List, Optional, Set, Type, get_type_hints
 
 from jinja2 import Environment, PackageLoader, Template
+from typing_inspect import get_args, get_origin
 
 import hydra
 from omegaconf import OmegaConf, ValidationError
@@ -229,11 +220,11 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
                 default_ = "MISSING"
                 string_imports.add("from omegaconf import MISSING")
 
+            if isinstance(default_, Enum):
+                default_ = Enum.__str__(default_)
+
             if incompatible_annotation_type:
-                if isinstance(default_, Enum):
-                    default_ = f"{default_.__class__}.{default_.name}"
-                else:
-                    default_ = f"{default_}  # {type_str(type_cached)}"
+                default_ = f"{default_}  # {type_str(type_cached)}"
             elif incompatible_value_type:
                 default_ = f"{default_}  # {type_str(type(p.default))}"  # if not missing_value:
 
