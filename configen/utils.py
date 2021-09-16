@@ -1,7 +1,8 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 import sys
 from enum import Enum
-from typing import Any, List, Optional, Set, Tuple, Type, get_args, get_origin
+from typing import Any, List, Optional, Set, Tuple, Type
+from typing_inspect import get_args, get_origin
 
 from omegaconf._utils import _resolve_optional, is_primitive_type
 

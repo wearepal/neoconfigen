@@ -16,10 +16,9 @@ from typing import (
     Optional,
     Set,
     Type,
-    get_args,
-    get_origin,
     get_type_hints,
 )
+from typing_inspect import get_args, get_origin
 
 from jinja2 import Environment, PackageLoader, Template
 
