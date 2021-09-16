@@ -231,7 +231,10 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
                 string_imports.add("from omegaconf import MISSING")
 
             if incompatible_annotation_type:
-                default_ = f"{default_}  # {type_str(type_cached)}"
+                if isinstance(default_, Enum):
+                    default_ = f"{default_.__class__}.{default_.name}"
+                else:
+                    default_ = f"{default_}  # {type_str(type_cached)}"
             elif incompatible_value_type:
                 default_ = f"{default_}  # {type_str(type(p.default))}"  # if not missing_value:
 
