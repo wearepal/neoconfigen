@@ -1,10 +1,22 @@
 [tool.poetry]
 name = "neoconfigen"
-authors = ["Omry Yadan", "Rosario Scalise", "PAL"]
-description = "A fork of hydra-core's configen with extended compatibility."
+authors = ["Omry Yadan", "Rosario Scalise", "PAL <info@predictive-analytics-lab.com>"]
+description = "A fork of hydra-core's configen with extended type-compatibility."
 version = "1.0.0"
-packages = [{ include = "configen" }]
 repository="https://github.com/predictive-analytics-lab/neoconfigen"
+license = "MIT License"
+packages = [{ include = "configen" }]
+include=["configen/py.typed"]
+classifiers=[
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Typing :: Typed",
+]
+keywords=["hydra", "python"]
+readme="README.md"
 
 [tool.poetry.dependencies]
 python = "^3.7"
