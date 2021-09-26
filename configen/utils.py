@@ -45,7 +45,7 @@ def type_str(type_: Any) -> str:
         # tuple and the string needs to be formatted such that the first argument
         # is a list of input types (which need to be joined with ','s, as for lists
         # and tuples) and the second argument is the return type.
-        if name == "Callable" and :
+        if name == "Callable":
             in_args_str = ", ".join([type_str(inner_type) for inner_type in args[0]])
             out_args_str = type_str(args[1])
             ret = f"{name}[[{in_args_str}], {out_args_str}]"
