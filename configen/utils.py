@@ -40,17 +40,18 @@ def type_str(type_: Any) -> str:
                 name = str(type_._name)
 
     args = get_args(type_) if hasattr(type_, "__args__") else None
-    # Callable needs to be special-cased: its args come in the form of a
-    # tuple and the string needs to be formatted such that the first argument
-    # is a list of input types (which need to be joined with ','s, as for lists
-    # and tuples) and the second argument is the return type.
-    if name == "Callable":
-        in_args_str = ", ".join([type_str(inner_type) for inner_type in args[0]])
-        out_args_str = type_str(args[1])
-        ret = f"{name}[[{in_args_str}], {out_args_str}]"
-    elif args is not None:
-        args_str = ", ".join([type_str(inner_type) for inner_type in (list(args))])
-        ret = f"{name}[{args_str}]"
+    if args is not None:
+        # Callable needs to be special-cased: its args come in the form of a
+        # tuple and the string needs to be formatted such that the first argument
+        # is a list of input types (which need to be joined with ','s, as for lists
+        # and tuples) and the second argument is the return type.
+        if name == "Callable" and :
+            in_args_str = ", ".join([type_str(inner_type) for inner_type in args[0]])
+            out_args_str = type_str(args[1])
+            ret = f"{name}[[{in_args_str}], {out_args_str}]"
+        else:
+            args_str = ", ".join([type_str(inner_type) for inner_type in (list(args))])
+            ret = f"{name}[{args_str}]"
     else:
         ret = name
     if is_optional:
