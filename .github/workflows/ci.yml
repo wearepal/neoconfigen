@@ -92,7 +92,6 @@ jobs:
     - name: Run type checking
       run: |
         pyright configen
-        pyright tests
     runs-on: ubuntu-latest
 
   check_yaml:

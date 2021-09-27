@@ -18,7 +18,7 @@ def type_str(type_: Any) -> str:
     if type_ is ...:
         return "..."
 
-    if sys.version_info < (3, 7, 0):  # pragma: no cover
+    if sys.version_info < (3, 7, 0):
         # Python 3.6
         if hasattr(type_, "__name__"):
             name = str(type_.__name__)
@@ -34,9 +34,8 @@ def type_str(type_: Any) -> str:
         if hasattr(type_, "__name__"):
             name = str(type_.__name__)
         else:
-            if type_._name is None:
-                if get_origin(type_) is not None:
-                    name = type_str(type_.__origin__)
+            if type_._name is None and (get_origin(type_) is not None):
+                name = type_str(type_.__origin__)
             else:
                 name = str(type_._name)
 
@@ -75,7 +74,7 @@ def convert_imports(imports: Set[Type], string_imports: Set[str]) -> List[str]:
         origin = getattr(import_, "__origin__", None)
         if import_ is Any:
             classname = "Any"
-        elif import_ is Optional:
+        elif import_ is Optional:  # type: ignore
             classname = "Optional"
         else:
             if origin is list:
