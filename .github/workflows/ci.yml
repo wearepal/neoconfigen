@@ -35,10 +35,21 @@ jobs:
       run: poetry install --no-interaction
     - name: Install CI dependencies
       # TODO: do this with poetry extras
-      run: pip install pytest omegaconf==2.1.0.dev20 hydra-core==1.1.0.dev4
+      run: pip install pytest omegaconf hydra-core
     - name: Test with pytest
       run: |
         python -m pytest -vv tests/
+    - name: Setup node.js (for pyright)
+      uses: actions/setup-node@v1
+      with:
+        node-version: "14"
+
+    - name: Install pyright
+      run: npm install -g pyright
+
+    - name: Run type checking
+      run: |
+        pyright configen
 
   lint_with_flake8:
 
@@ -78,21 +89,6 @@ jobs:
     - name: Format with isort
       run: |
         isort . --check --diff
-
-  type_check_with_pyright:
-    steps:
-    - name: Setup node.js (for pyright)
-      uses: actions/setup-node@v1
-      with:
-        node-version: "14"
-
-    - name: Install pyright
-      run: npm install -g pyright
-
-    - name: Run type checking
-      run: |
-        pyright configen
-    runs-on: ubuntu-latest
 
   check_yaml:
 
