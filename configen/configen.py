@@ -192,10 +192,6 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
                     import_name = default_.__class__.__name__
                     string_imports.add(f"from {module_name} import {import_name}")
 
-            if missing_annotation_type or incompatible_annotation_type:
-                type_ = Any
-                collect_imports(imports, Any)
-
             if is_literal_type(type_):
                 values = get_args(type_)
                 elem_type = type(values[0])
@@ -204,6 +200,11 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
                         break
                 else:
                     type_ = elem_type
+                    incompatible_annotation_type = False
+
+            if missing_annotation_type or incompatible_annotation_type:
+                type_ = Any
+                collect_imports(imports, Any)
 
             if not missing_value:
                 if type_ == str or type(default_) == str:
