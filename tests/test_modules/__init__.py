@@ -2,6 +2,7 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple, Union
+from typing_extensions import Literal
 
 from omegaconf import MISSING
 
@@ -222,4 +223,17 @@ class Tuples:
             and self.t1 == other.t1
             and self.t2 == other.t2
             and self.t3 == other.t3
+        )
+
+
+class WithLiterals:
+    def __init__(self, fairness: Literal["DP", "EO"], bit_depth: Literal[5, 8] = 8):
+        self.fairness = fairness
+        self.bit_depth = bit_depth
+
+    def __eq__(self, other):
+        return (
+            isinstance(other, type(self))
+            and self.fairness == other.fairness
+            and self.bit_depth == other.bit_depth
         )
