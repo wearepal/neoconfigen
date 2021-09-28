@@ -50,6 +50,7 @@ exclude = '''
     | .nox
     | website
     | .venv
+    | ~
     | _build
     | dist
   )

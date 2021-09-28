@@ -109,3 +109,10 @@ class TuplesConf:
 class PeskySentinelUsageConf:
     _target_: str = "tests.test_modules.PeskySentinelUsage"
     foo: Any = MISSING  # PeskySentinel
+
+
+@dataclass
+class WithLiteralsConf:
+    _target_: str = "tests.test_modules.WithLiterals"
+    fairness: str = MISSING
+    bit_depth: int = 8

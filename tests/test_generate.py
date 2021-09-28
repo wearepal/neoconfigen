@@ -24,6 +24,7 @@ from tests.test_modules import (
     UntypedArg,
     User,
     WithLibraryClassArg,
+    WithLiterals,
     WithStringDefault,
     WithUntypedStringDefault,
 )
@@ -72,6 +73,7 @@ def test_generated_code() -> None:
         "DictValues",
         "Tuples",
         "PeskySentinelUsage",
+        "WithLiterals",
     ]
     expected_file = Path(MODULE_NAME.replace(".", "/")) / "generated.py"
     expected = expected_file.read_text()
@@ -243,6 +245,14 @@ def test_generated_code_with_default_flags(
             {"foo": 10.11},
             PeskySentinelUsage(foo=10.11),
             id="PeskySentinelUsage",
+        ),
+        pytest.param(
+            "WithLiterals",
+            {"fairness": "DP", "bit_depth": 5},
+            [],
+            {},
+            WithLiterals(fairness="DP", bit_depth=5),
+            id="WithLiterals",
         ),
     ],
 )

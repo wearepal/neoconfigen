@@ -2,6 +2,7 @@
 import sys
 from enum import Enum
 from typing import Any, List, Optional, Set, Tuple, Type
+
 from typing_inspect import get_args, get_origin
 
 from omegaconf._utils import _resolve_optional, is_primitive_type
@@ -17,42 +18,31 @@ def type_str(type_: Any) -> str:
     if type_ is ...:
         return "..."
 
-    if sys.version_info < (3, 7, 0):  # pragma: no cover
+    if hasattr(type_, "__name__"):
+        name = str(type_.__name__)
+    elif sys.version_info < (3, 7, 0):
         # Python 3.6
-        if hasattr(type_, "__name__"):
-            name = str(type_.__name__)
+        if type_.__origin__ is not None:
+            name = type_str(type_.__origin__)
         else:
-            if type_.__origin__ is not None:
-                name = type_str(type_.__origin__)
-            else:
-                name = str(type_)
-                if name.startswith("typing."):
-                    name = name[len("typing.") :]
-    else:  # pragma: no cover
-        # Python >= 3.7
-        if hasattr(type_, "__name__"):
-            name = str(type_.__name__)
-        else:
-            if type_._name is None:
-                if get_origin(type_) is not None:
-                    name = type_str(type_.__origin__)
-            else:
-                name = str(type_._name)
+            name = str(type_)
+            if name.startswith("typing."):
+                name = name[len("typing.") :]
+    elif type_._name is None and (get_origin(type_) is not None):
+        name = type_str(type_.__origin__)
+    else:
+        name = str(type_._name)
 
     args = get_args(type_) if hasattr(type_, "__args__") else None
-    # Callable needs to be special-cased: its args come in the form of a
-    # tuple and the string needs to be formatted such that the first argument
-    # is a list of input types (which need to be joined with ','s, as for lists
-    # and tuples) and the second argument is the return type.
-    if name == "Callable":
-        in_args_str = ", ".join([type_str(inner_type) for inner_type in args[0]])
+    if args is None:
+        ret = name
+    elif name == "Callable":
+        in_args_str = ", ".join(type_str(inner_type) for inner_type in args[0])
         out_args_str = type_str(args[1])
         ret = f"{name}[[{in_args_str}], {out_args_str}]"
-    elif args is not None:
-        args_str = ", ".join([type_str(inner_type) for inner_type in (list(args))])
-        ret = f"{name}[{args_str}]"
     else:
-        ret = name
+        args_str = ", ".join(type_str(inner_type) for inner_type in (list(args)))
+        ret = f"{name}[{args_str}]"
     if is_optional:
         return f"Optional[{ret}]"
     else:
@@ -73,17 +63,16 @@ def convert_imports(imports: Set[Type], string_imports: Set[str]) -> List[str]:
         origin = getattr(import_, "__origin__", None)
         if import_ is Any:
             classname = "Any"
-        elif import_ is Optional:
+        elif import_ is Optional:  # type: ignore
             classname = "Optional"
+        elif origin is list:
+            classname = "List"
+        elif origin is tuple:
+            classname = "Tuple"
+        elif origin is dict:
+            classname = "Dict"
         else:
-            if origin is list:
-                classname = "List"
-            elif origin is tuple:
-                classname = "Tuple"
-            elif origin is dict:
-                classname = "Dict"
-            else:
-                classname = import_.__name__
+            classname = import_.__name__
         if not is_primitive_type(import_) or issubclass(import_, Enum):
             tmp.add(f"from {import_.__module__} import {classname}")
 
