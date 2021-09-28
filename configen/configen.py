@@ -11,7 +11,7 @@ from textwrap import dedent
 from typing import Any, Callable, Dict, List, Optional, Set, Type, get_type_hints
 
 from jinja2 import Environment, PackageLoader, Template
-from typing_inspect import get_args, get_origin
+from typing_inspect import get_args, get_origin, is_literal_type
 
 import hydra
 from omegaconf import OmegaConf, ValidationError
@@ -108,10 +108,7 @@ def is_incompatible(type_: Type[Any]) -> bool:
                 return True
             return is_incompatible(kvt[1])
         if is_tuple_annotation(type_):
-            for arg in type_.__args__:
-                if arg is not ... and is_incompatible(arg):
-                    return True
-            return False
+            return any(arg is not ... and is_incompatible(arg) for arg in type_.__args__)
         origin = get_origin(type_)
         # Callable isn't a class so the subsequent issubclass check would raise
         # a rype-error if called on it
@@ -119,10 +116,7 @@ def is_incompatible(type_: Type[Any]) -> bool:
             return True
         if origin is type:
             args = get_args(type_)
-            if is_incompatible(args[0]):
-                return True
-            return False
-
+            return bool(is_incompatible(args[0]))
     except ValidationError:
         return True
 
@@ -176,7 +170,7 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
         full_name = f"{module.name}.{class_name}"
         cls = hydra.utils.get_class(full_name)
         params: List[Parameter] = []
-        params = params + default_flags
+        params += default_flags
         resolved_hints = get_type_hints(cls.__init__)
         sig = inspect.signature(cls.__init__)
 
@@ -202,6 +196,15 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
                 type_ = Any
                 collect_imports(imports, Any)
 
+            if is_literal_type(type_):
+                values = get_args(type_)
+                elem_type = type(values[0])
+                for value in values[1:]:
+                    if not isinstance(value, elem_type):
+                        break
+                else:
+                    type_ = elem_type
+
             if not missing_value:
                 if type_ == str or type(default_) == str:
                     default_ = f'"{default_}"'
@@ -210,10 +213,7 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
                 elif isinstance(default_, dict):
                     default_ = f"field(default_factory=lambda: {default_})"
 
-            missing_default = missing_value
-            if incompatible_value_type:
-                missing_default = True
-
+            missing_default = True if incompatible_value_type else missing_value
             collect_imports(imports, type_)
 
             if missing_default:
