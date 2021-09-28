@@ -195,10 +195,7 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
             if is_literal_type(type_):
                 values = get_args(type_)
                 elem_type = type(values[0])
-                for value in values[1:]:
-                    if not isinstance(value, elem_type):
-                        break
-                else:
+                if all(isinstance(value, elem_type) for value in values[1:]):
                     type_ = elem_type
                     incompatible_annotation_type = False
 
