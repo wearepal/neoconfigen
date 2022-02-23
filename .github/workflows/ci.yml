@@ -6,50 +6,6 @@ on:
     - main
 
 jobs:
-  test_with_pytest:
-
-    runs-on: ubuntu-latest
-    env:
-      POETRY_VIRTUALENVS_CREATE: false
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.7
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.7
-    - name: Set up Poetry cache for Python dependencies
-      uses: actions/cache@v2
-      if: startsWith(runner.os, 'Linux')
-      with:
-        path: ~/.cache/pypoetry
-        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-        restore-keys: ${{ runner.os }}-poetry-
-    - name: Install Poetry
-      run: |
-        curl -fsS -o get-poetry.py https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py
-        python get-poetry.py -y
-        echo "$HOME/.poetry/bin" >> $GITHUB_PATH
-        rm get-poetry.py
-    - name: Install dependencies
-      run: poetry install --no-interaction
-    - name: Install CI dependencies
-      # TODO: do this with poetry extras
-      run: pip install pytest omegaconf hydra-core
-    - name: Test with pytest
-      run: |
-        python -m pytest -vv tests/
-    - name: Setup node.js (for pyright)
-      uses: actions/setup-node@v1
-      with:
-        node-version: "14"
-
-    - name: Install pyright
-      run: npm install -g pyright
-
-    - name: Run type checking
-      run: |
-        pyright configen
 
   lint_with_flake8:
 
@@ -107,3 +63,50 @@ jobs:
     - name: Check docstrings with pydocstyle
       run: |
         yamllint .
+
+  run_tests_and_type_checking:
+
+    needs: [format_with_black_and_isort, lint_with_flake8, check_yaml]
+    runs-on: ubuntu-latest
+    env:
+      POETRY_VIRTUALENVS_CREATE: false
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+    - name: Set up Poetry cache for Python dependencies
+      uses: actions/cache@v2
+      if: startsWith(runner.os, 'Linux')
+      with:
+        path: ~/.cache/pypoetry
+        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: ${{ runner.os }}-poetry-
+    - name: Install Poetry
+      run: |
+        curl -fsS -o get-poetry.py https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py
+        python get-poetry.py -y
+        echo "$HOME/.poetry/bin" >> $GITHUB_PATH
+        rm get-poetry.py
+    - name: Install dependencies
+      run: poetry install --no-interaction
+    - name: Install CI dependencies
+      # TODO: do this with poetry extras
+      run: pip install pytest omegaconf hydra-core
+    - name: Test with pytest
+      run: |
+        poetry run python -m pytest -vv tests/
+
+    - name: Setup node.js (for pyright)
+      uses: actions/setup-node@v1
+      with:
+        node-version: "14"
+
+    - name: Install pyright
+      run: npm install -g pyright
+
+    - name: Run type checking
+      run: |
+        poetry run pyright configen
