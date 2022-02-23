@@ -10,8 +10,8 @@ from pathlib import Path
 from textwrap import dedent
 from typing import Any, Callable, Dict, List, Optional, Set, Type, get_type_hints
 
-from jinja2 import Environment, PackageLoader, Template
-from typing_inspect import get_args, get_origin, is_literal_type
+from jinja2 import Environment, PackageLoader, Template  # type: ignore
+from typing_inspect import get_args, get_origin, is_literal_type  # type: ignore
 
 import hydra
 from omegaconf import OmegaConf, ValidationError
@@ -108,7 +108,7 @@ def is_incompatible(type_: Type[Any]) -> bool:
                 return True
             return is_incompatible(kvt[1])
         if is_tuple_annotation(type_):
-            return any(arg is not ... and is_incompatible(arg) for arg in type_.__args__)
+            return any(arg is not ... and is_incompatible(arg) for arg in type_.__args__)  # type: ignore
         origin = get_origin(type_)
         # Callable isn't a class so the subsequent issubclass check would raise
         # a rype-error if called on it
