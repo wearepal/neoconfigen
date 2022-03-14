@@ -10,7 +10,7 @@ from pathlib import Path
 from textwrap import dedent
 from typing import Any, Callable, Dict, List, Optional, Set, Type, get_type_hints
 
-from jinja2 import Environment, PackageLoader, Template  # type: ignore
+from jinja2 import Environment, PackageLoader, Template
 from typing_inspect import get_args, get_origin, is_literal_type  # type: ignore
 
 import hydra
@@ -24,6 +24,7 @@ from omegaconf._utils import (
     is_list_annotation,
     is_structured_config,
 )
+from omegaconf.dictconfig import DictConfig  # type: ignore
 
 from configen.config import Config, ConfigenConf, ModuleConf
 from configen.utils import (
@@ -175,56 +176,63 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
         sig = inspect.signature(cls.__init__)
 
         for name, p in sig.parameters.items():
-            # Skip self as an attribute.
-            if name in ("self", "args", "kwargs"):
+            # Skip self/args as attributes
+            if name == "self" or (p.kind is inspect._ParameterKind.VAR_POSITIONAL):
                 continue
-            type_ = type_cached = resolved_hints.get(name, p.annotation)
-            default_ = p.default
+            elif p.kind is inspect._ParameterKind.VAR_KEYWORD:
+                type_ = Dict[str, Any]
+                default_ = "field(default_factory=dict)"
+            else:
+                type_ = type_cached = resolved_hints.get(name, p.annotation)
+                default_ = p.default
 
-            missing_value = default_ == sig.empty
-            incompatible_value_type = not missing_value and is_incompatible(type(default_))
-            missing_annotation_type = name not in resolved_hints
-            incompatible_annotation_type = not missing_annotation_type and is_incompatible(type_)
+                missing_value = default_ == sig.empty
+                incompatible_value_type = not missing_value and is_incompatible(type(default_))
+                missing_annotation_type = name not in resolved_hints
+                incompatible_annotation_type = not missing_annotation_type and is_incompatible(
+                    type_
+                )
 
-            if isinstance(default_, Enum):
-                module_name = getattr(default_, "__module__", None)
-                if module_name is not None:  # Import required
-                    import_name = default_.__class__.__name__
-                    string_imports.add(f"from {module_name} import {import_name}")
+                if isinstance(default_, Enum):
+                    module_name = getattr(default_, "__module__", None)
+                    if module_name is not None:  # Import required
+                        import_name = default_.__class__.__name__
+                        string_imports.add(f"from {module_name} import {import_name}")
 
-            if is_literal_type(type_):
-                values = get_args(type_)
-                elem_type = type(values[0])
-                if all(isinstance(value, elem_type) for value in values[1:]):
-                    type_ = elem_type
-                    incompatible_annotation_type = False
+                if is_literal_type(type_):
+                    values = get_args(type_)
+                    assert values
+                    elem_type = type(values[0])
+                    if all(isinstance(value, elem_type) for value in values[1:]):
+                        type_ = elem_type
+                        incompatible_annotation_type = False
 
-            if missing_annotation_type or incompatible_annotation_type:
-                type_ = Any
-                collect_imports(imports, Any)
+                if missing_annotation_type or incompatible_annotation_type:
+                    type_ = Any
+                    collect_imports(imports, Any)
 
-            if not missing_value:
-                if type_ == str or type(default_) == str:
-                    default_ = f'"{default_}"'
-                elif isinstance(default_, list):
-                    default_ = f"field(default_factory=lambda: {default_})"
-                elif isinstance(default_, dict):
-                    default_ = f"field(default_factory=lambda: {default_})"
+                if not missing_value:
+                    if type_ == str or type(default_) == str:
+                        default_ = f'"{default_}"'
+                    elif isinstance(default_, list):
+                        default_ = f"field(default_factory=lambda: {default_})"
+                    elif isinstance(default_, dict):
+                        default_ = f"field(default_factory=lambda: {default_})"
 
-            missing_default = True if incompatible_value_type else missing_value
-            collect_imports(imports, type_)
+                missing_default = True if incompatible_value_type else missing_value
+                collect_imports(imports, type_)
 
-            if missing_default:
-                default_ = "MISSING"
-                string_imports.add("from omegaconf import MISSING")
+                if missing_default:
+                    default_ = "MISSING"
+                    string_imports.add("from omegaconf import MISSING")
 
-            if isinstance(default_, Enum):
-                default_ = Enum.__str__(default_)
+                if isinstance(default_, Enum):
+                    default_ = Enum.__str__(default_)
 
-            if incompatible_annotation_type:
-                default_ = f"{default_}  # {type_str(type_cached)}"
-            elif incompatible_value_type:
-                default_ = f"{default_}  # {type_str(type(p.default))}"  # if not missing_value:
+                if incompatible_annotation_type:
+                    default_ = f"{default_}  # {type_str(type_cached)}"
+                elif incompatible_value_type:
+                    default_ = f"{default_}  # {type_str(type(p.default))}"  # if not missing_value:
 
             params.append(
                 Parameter(
@@ -233,20 +241,22 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
                     default=str(default_),
                 )
             )
-        classes_map[class_name] = ClassInfo(
-            target=full_name,
-            module=module.name,
-            name=class_name,
-            parameters=params,
-        )
+            classes_map[class_name] = ClassInfo(
+                target=full_name,
+                module=module.name,
+                name=class_name,
+                parameters=params,
+            )
 
     template = jinja_env.get_template("module.j2")
-    return template.render(
+    rendered = template.render(
         imports=convert_imports(imports, string_imports),
         classes=module.classes,
         classes_map=classes_map,
         header=cfg.header,
     )
+    assert isinstance(rendered, str)
+    return rendered
 
 
 @hydra.main(config_path=None, config_name="configen_schema")

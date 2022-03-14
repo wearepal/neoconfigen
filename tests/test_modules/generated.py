@@ -41,6 +41,7 @@ class ArgsConf:
 @dataclass
 class KwargsConf:
     _target_: str = "tests.test_modules.Kwargs"
+    param: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
