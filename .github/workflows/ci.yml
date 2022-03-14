@@ -70,15 +70,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ----------------------------------------------
-      #  ----  check-out repo and set-up python ----
-      # ----------------------------------------------
-      - name: Check out repository
-        uses: actions/checkout@v2
-      - name: Set up Python 3.7
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.7
+
+    # ----------------------------------------------
+    #  ----  check-out repo and set-up python ----
+    # ----------------------------------------------
+    - name: Check out repository
+      uses: actions/checkout@v2
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
 
     # ----------------------------------------------
     #  -----  install & configure poetry  -----
