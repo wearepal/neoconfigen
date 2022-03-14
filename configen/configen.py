@@ -24,7 +24,6 @@ from omegaconf._utils import (
     is_list_annotation,
     is_structured_config,
 )
-from omegaconf.dictconfig import DictConfig  # type: ignore
 
 from configen.config import Config, ConfigenConf, ModuleConf
 from configen.utils import (
