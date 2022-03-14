@@ -31,6 +31,9 @@ mypy = "^0.800"
 pytest = "^6.2.2"
 isort = "^5.7.0"
 
+[tool.poetry.extras]
+ci = ["hydra-core", "omegaconf", "pytest"]
+
 [tool.poetry.scripts]
 configen = 'configen.configen:main'
 
