@@ -182,6 +182,7 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
             elif p.kind is inspect._ParameterKind.VAR_KEYWORD:
                 type_ = Dict[str, Any]
                 default_ = "field(default_factory=dict)"
+                string_imports.add("from typing import Dict")
             else:
                 type_ = type_cached = resolved_hints.get(name, p.annotation)
                 default_ = p.default
