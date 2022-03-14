@@ -62,7 +62,7 @@ class Args:
 
 
 class Kwargs:
-    def __init__(self, **kwargs: Dict[str, Any]):
+    def __init__(self, **kwargs: Any):
         self.param = kwargs
 
     def __eq__(self, other):
