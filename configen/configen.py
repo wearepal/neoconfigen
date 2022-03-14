@@ -10,7 +10,7 @@ from pathlib import Path
 from textwrap import dedent
 from typing import Any, Callable, Dict, List, Optional, Set, Type, get_type_hints
 
-from jinja2 import Environment, PackageLoader, Template
+from jinja2 import Environment, PackageLoader, Template  # type: ignore
 from typing_inspect import get_args, get_origin, is_literal_type  # type: ignore
 
 import hydra
@@ -67,6 +67,7 @@ def save(cfg: ConfigenConf, module: str, code: str) -> None:
     module_path = module.replace(".", "/")
 
     module_path_pattern = Template(cfg.module_path_pattern).render(module_path=module_path)
+    assert module_path_pattern
     path = Path(cfg.output_dir) / module_path_pattern
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(code)
@@ -117,7 +118,7 @@ def is_incompatible(type_: Type[Any]) -> bool:
             return True
         if origin is type:
             args = get_args(type_)
-            return bool(is_incompatible(args[0]))
+            return bool(is_incompatible(args[0]))  # type: ignore
     except ValidationError:
         return True
 
