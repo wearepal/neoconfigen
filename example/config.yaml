@@ -1,3 +1,4 @@
+---
 defaults:
   - config_schema
   - _self_
