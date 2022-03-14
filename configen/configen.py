@@ -238,12 +238,12 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
                     default=str(default_),
                 )
             )
-            classes_map[class_name] = ClassInfo(
-                target=full_name,
-                module=module.name,
-                name=class_name,
-                parameters=params,
-            )
+        classes_map[class_name] = ClassInfo(
+            target=full_name,
+            module=module.name,
+            name=class_name,
+            parameters=params,
+        )
 
     template = jinja_env.get_template("module.j2")
     rendered = template.render(
