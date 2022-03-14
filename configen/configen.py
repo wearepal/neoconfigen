@@ -66,6 +66,7 @@ def save(cfg: ConfigenConf, module: str, code: str) -> None:
     module_path = module.replace(".", "/")
 
     module_path_pattern = Template(cfg.module_path_pattern).render(module_path=module_path)
+    assert module_path_pattern
     path = Path(cfg.output_dir) / module_path_pattern
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(code)
@@ -116,7 +117,7 @@ def is_incompatible(type_: Type[Any]) -> bool:
             return True
         if origin is type:
             args = get_args(type_)
-            return bool(is_incompatible(args[0]))
+            return bool(is_incompatible(args[0]))  # type: ignore
     except ValidationError:
         return True
 
@@ -175,8 +176,11 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
         sig = inspect.signature(cls.__init__)
 
         for name, p in sig.parameters.items():
-            # Skip self as an attribute.
-            if name in ("self", "args", "kwargs"):
+            # Skip self/args as attributes
+            if name == "self" or (
+                p.kind
+                in (inspect._ParameterKind.VAR_POSITIONAL, inspect._ParameterKind.VAR_KEYWORD)
+            ):
                 continue
             type_ = type_cached = resolved_hints.get(name, p.annotation)
             default_ = p.default
@@ -194,6 +198,7 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
 
             if is_literal_type(type_):
                 values = get_args(type_)
+                assert values
                 elem_type = type(values[0])
                 if all(isinstance(value, elem_type) for value in values[1:]):
                     type_ = elem_type
@@ -241,12 +246,14 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
         )
 
     template = jinja_env.get_template("module.j2")
-    return template.render(
+    rendered = template.render(
         imports=convert_imports(imports, string_imports),
         classes=module.classes,
         classes_map=classes_map,
         header=cfg.header,
     )
+    assert isinstance(rendered, str)
+    return rendered
 
 
 @hydra.main(config_path=None, config_name="configen_schema")

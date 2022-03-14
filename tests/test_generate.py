@@ -6,7 +6,7 @@ from typing import Any
 
 import pytest
 
-from hydra.test_utils.test_utils import chdir_hydra_root, run_python_script
+from hydra.test_utils.test_utils import run_python_script
 from hydra.utils import ConvertMode, get_class, instantiate
 from omegaconf import OmegaConf
 from tests.test_modules import (
@@ -28,12 +28,9 @@ from tests.test_modules import (
     WithStringDefault,
     WithUntypedStringDefault,
 )
-from tests.test_modules.generated import PeskySentinelUsageConf
 
 from configen.config import ConfigenConf, Flags, ModuleConf
 from configen.configen import generate_module
-
-# chdir_hydra_root(subdir="tools/configen")
 
 ##
 # To re-generate the expected config run the following command from configen's root directory (tools/configen).
@@ -271,9 +268,10 @@ def test_example_application(monkeypatch: Any, tmpdir: Path):
     cmd = [
         "my_app.py",
         f"hydra.run.dir={tmpdir}",
+        f"hydra.job.chdir=false",
         "user.name=Batman",
     ]
-    result, _err = run_python_script(cmd, env={"PYTHONPATH": ".."})
+    result, _ = run_python_script(cmd, env={"PYTHONPATH": ".."})
     assert result == dedent(
         """\
     User: name=Batman, age=7
