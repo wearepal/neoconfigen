@@ -16,13 +16,13 @@ from typing_inspect import get_args, get_origin, is_literal_type  # type: ignore
 import hydra
 from omegaconf import OmegaConf, ValidationError
 from omegaconf._utils import (
-    _is_union,
     _resolve_optional,
     get_dict_key_value_types,
     get_list_element_type,
     is_dict_annotation,
     is_list_annotation,
     is_structured_config,
+    is_union_annotation,
 )
 
 from configen.config import Config, ConfigenConf, ModuleConf
@@ -92,7 +92,7 @@ def is_incompatible(type_: Type[Any]) -> bool:
 
     opt = _resolve_optional(type_)
     # Unions are not supported (Except Optional)
-    if not opt[0] and _is_union(type_):
+    if not opt[0] and is_union_annotation(type_):
         return True
 
     type_ = opt[1]
