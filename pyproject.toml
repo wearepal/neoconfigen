@@ -20,7 +20,7 @@ readme="README.md"
 
 [tool.poetry.dependencies]
 python = "^3.7"
-hydra-core = "^1.2.0dev3"
+hydra-core = "^1.2.0"
 jinja2 = "^2.11.3"
 markupsafe = "<=2.0.1"
 typing-inspect = "^0.7.1"
