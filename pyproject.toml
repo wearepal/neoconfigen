@@ -2,7 +2,7 @@
 name = "neoconfigen"
 authors = ["Omry Yadan", "Rosario Scalise", "PAL <info@predictive-analytics-lab.com>"]
 description = "A fork of hydra-core's configen with extended type-compatibility."
-version = "2.1.4"
+version = "2.2.0"
 repository="https://github.com/predictive-analytics-lab/neoconfigen"
 license = "MIT License"
 packages = [{ include = "configen" }]
