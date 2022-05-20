@@ -5,7 +5,7 @@ from typing import Any, List, Optional, Set, Tuple, Type
 
 from typing_inspect import get_args, get_origin  # type: ignore
 
-from omegaconf._utils import _resolve_optional, is_primitive_type
+from omegaconf._utils import _resolve_optional, is_primitive_type_annotation
 
 
 # borrowed from OmegaConf
@@ -73,7 +73,7 @@ def convert_imports(imports: Set[Type], string_imports: Set[str]) -> List[str]:
             classname = "Dict"
         else:
             classname = import_.__name__
-        if not is_primitive_type(import_) or issubclass(import_, Enum):
+        if not is_primitive_type_annotation(import_) or issubclass(import_, Enum):
             tmp.add(f"from {import_.__module__} import {classname}")
 
     return sorted(list(tmp.union(string_imports)))
