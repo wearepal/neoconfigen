@@ -16,13 +16,13 @@ from typing_inspect import get_args, get_origin, is_literal_type  # type: ignore
 import hydra
 from omegaconf import OmegaConf, ValidationError
 from omegaconf._utils import (
-    is_union_annotation,
     _resolve_optional,
     get_dict_key_value_types,
     get_list_element_type,
     is_dict_annotation,
     is_list_annotation,
     is_structured_config,
+    is_union_annotation,
 )
 
 from configen.config import Config, ConfigenConf, ModuleConf
