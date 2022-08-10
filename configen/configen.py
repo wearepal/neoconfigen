@@ -37,7 +37,6 @@ from omegaconf._utils import (
 
 from configen.config import Config, ConfigenConf, ModuleConf
 from configen.utils import (
-    _resolve_literal,
     collect_imports,
     convert_imports,
     is_tuple_annotation,
