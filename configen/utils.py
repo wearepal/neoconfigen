@@ -19,7 +19,10 @@ from typing_inspect import is_literal_type  # type: ignore
 
 from omegaconf._utils import _resolve_optional, is_primitive_type_annotation
 
-PrimitiveType: TypeAlias = Union[int, bool, str, bytes, Enum, None]
+PrimitiveType: TypeAlias = Union[
+    Type[int], Type[bool], Type[str], Type[bytes], Type[Enum], Type[None]
+]
+PrimitiveTypeU: TypeAlias = Type[PrimitiveType]
 
 
 def _resolve_literal(
