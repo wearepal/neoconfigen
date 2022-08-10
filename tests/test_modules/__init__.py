@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from typing_extensions import Literal
+from typing_extensions import Literal, TypeAlias
 
 from omegaconf import MISSING
 
@@ -227,14 +227,33 @@ class Tuples:
         )
 
 
+_LITERAL_WARN: TypeAlias = Literal["warn"]
+
+
 class WithLiterals:
-    def __init__(self, fairness: Literal["DP", "EO"], bit_depth: Literal[5, 8] = 8):
+    def __init__(
+        self,
+        activation: Literal["relu", "gelu"],
+        fairness: Optional[Literal["DP", "EO"]] = None,
+        bit_depth: Optional[Union[Literal[5, 8], float]] = 5,
+        color1: Literal[Color.BLUE, Color.GREEN] = Color.BLUE,
+        color2: Optional[Literal[Color.BLUE, Color.GREEN]] = Color.GREEN,
+        deterministic: Optional[Union[bool, _LITERAL_WARN]] = None,
+    ):
+        self.activation = activation
         self.fairness = fairness
         self.bit_depth = bit_depth
+        self.color1 = color1
+        self.color2 = color2
+        self.deterministic = deterministic
 
     def __eq__(self, other):
         return (
             isinstance(other, type(self))
+            and self.activation == other.activation
             and self.fairness == other.fairness
             and self.bit_depth == other.bit_depth
+            and self.color1 == other.color1
+            and self.color2 == other.color2
+            and self.deterministic == other.deterministic
         )
