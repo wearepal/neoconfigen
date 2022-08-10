@@ -14,14 +14,20 @@ from typing import (
     get_origin,
 )
 
+from typing_extensions import TypeAlias
 from typing_inspect import is_literal_type  # type: ignore
 
 from omegaconf._utils import _resolve_optional, is_primitive_type_annotation
 
+_PRIMITIVE_TYPES = (int, bool, str, bytes, Enum, None)
+# Constructing a Union type dynamically using a tuple is perfectly valid.
+PrimitiveType: TypeAlias = Union[_PRIMITIVE_TYPES]  # type: ignore
+PrimitiveTypeU: TypeAlias = Type[Union[_PRIMITIVE_TYPES]]  # type: ignore
+
 
 def _resolve_literal(
     type_: Literal,
-) -> Union[Type[int], Type[bool], Type[str], Type[bytes], Type[Enum]]:
+) -> Union[PrimitiveType, PrimitiveTypeU]:
     values = get_args(type_)
     assert values
     value_types = set(type(value) for value in values)
