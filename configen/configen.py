@@ -119,7 +119,6 @@ def is_incompatible(type_: Type[Any]) -> bool:
         # a rype-error if called on it
         if isinstance(origin, Callable):
             return True
-
         if origin is type:
             args = get_args(type_)
             return bool(is_incompatible(args[0]))  # type: ignore
