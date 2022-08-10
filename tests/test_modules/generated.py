@@ -7,6 +7,7 @@
 
 from dataclasses import dataclass, field
 from omegaconf import MISSING
+from pathlib import Path
 from tests.test_modules import Color
 from tests.test_modules import User
 from typing import Any
@@ -35,6 +36,12 @@ class IntArgConf:
 
 
 @dataclass
+class PathArgConf:
+    _target_: str = "tests.test_modules.PathArg"
+    param: Path = MISSING
+
+
+@dataclass
 class ArgsConf:
     _target_: str = "tests.test_modules.Args"
 
@@ -49,6 +56,8 @@ class UnionArgConf:
     _target_: str = "tests.test_modules.UnionArg"
     param: Union[int, float] = MISSING
     param2: Optional[Union[str, Color, bool]] = None
+    param3: Union[str, Path] = ""
+    param4: Any = ""  # Union[str, DictConfig]
 
 
 @dataclass
