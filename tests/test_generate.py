@@ -159,7 +159,7 @@ def test_generated_code_with_default_flags(
             id="UntypedArg_passthrough_lib_class",
         ),
         pytest.param("IntArg", {"param": 1}, [], {}, IntArg(param=1), id="IntArg"),
-        pytest.param("PathArg", {"param": 1}, [], {}, PathArg(param=Path("")), id="PathArg"),
+        pytest.param("PathArg", {"param": ""}, [], {}, PathArg(param=Path("")), id="PathArg"),
         pytest.param("UnionArg", {"param": 1}, [], {}, UnionArg(param=1), id="UnionArg"),
         pytest.param("UnionArg", {"param": 3.14}, [], {}, UnionArg(param=3.14), id="UnionArg"),
         pytest.param(
