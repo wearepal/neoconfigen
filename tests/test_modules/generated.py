@@ -14,6 +14,7 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
+from typing import Union
 
 
 @dataclass
@@ -46,7 +47,8 @@ class KwargsConf:
 @dataclass
 class UnionArgConf:
     _target_: str = "tests.test_modules.UnionArg"
-    param: Any = MISSING  # Union[int, float]
+    param: Union[int, float] = MISSING
+    param2: Optional[Union[str, Color, bool]] = None
 
 
 @dataclass
@@ -116,7 +118,8 @@ class WithLiteralsConf:
     _target_: str = "tests.test_modules.WithLiterals"
     activation: str = MISSING
     fairness: Optional[str] = None
-    bit_depth: Any = 5  # Optional[Union[int, float]]
+    bit_depth: Optional[Union[int, float]] = 5
     color1: Color = Color.BLUE
     color2: Optional[Color] = Color.GREEN
-    deterministic: Any = None  # Optional[Union[bool, str]]
+    deterministic: Optional[Union[bool, str]] = None
+    mixed_type_lit: Union[int, Color, str] = 0
