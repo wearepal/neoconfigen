@@ -206,10 +206,6 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
                     import_name = default_.__class__.__name__
                     string_imports.add(f"from {module_name} import {import_name}")
 
-            if is_literal_type(type_):
-                _resolve_literal(type_)
-                incompatible_annotation_type = False
-
             if missing_annotation_type or incompatible_annotation_type:
                 type_ = Any
                 collect_imports(imports, Any)
