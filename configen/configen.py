@@ -8,10 +8,20 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from textwrap import dedent
-from typing import Any, Callable, Dict, List, Optional, Set, Type, get_type_hints
+from typing import (
+    Any,
+    Dict,
+    List,
+    Optional,
+    Set,
+    Type,
+    get_args,
+    get_origin,
+    get_type_hints,
+)
 
 from jinja2 import Environment, PackageLoader, Template  # type: ignore
-from typing_inspect import get_args, get_origin, is_literal_type  # type: ignore
+from typing_inspect import is_callable_type, is_literal_type  # type: ignore
 
 import hydra
 from omegaconf import OmegaConf, ValidationError
@@ -89,32 +99,31 @@ class ClassInfo:
 
 
 def is_incompatible(type_: Type[Any]) -> bool:
-
-    opt = _resolve_optional(type_)
-    # Unions are not supported (Except Optional)
-    if not opt[0] and is_union_annotation(type_):
-        return True
-
-    type_ = opt[1]
+    _, type_ = _resolve_optional(type_)
     if type_ in (type(None), tuple, list, dict):
         return False
-
     try:
-        if is_list_annotation(type_):
+        # Literal values must be primitive so no need to run a compatibility-check over them.
+        if is_literal_type(type_):
+            return False
+        # Callable isn't a class so the subsequent issubclass check would raise
+        # a rype-error if called on it
+        elif is_callable_type(type_):
+            return True
+        elif is_list_annotation(type_):
             lt = get_list_element_type(type_)
             return is_incompatible(lt)
-        if is_dict_annotation(type_):
+        elif is_dict_annotation(type_):
             kvt = get_dict_key_value_types(type_)
             if not issubclass(kvt[0], (str, Enum)):
                 return True
             return is_incompatible(kvt[1])
-        if is_tuple_annotation(type_):
+        elif is_tuple_annotation(type_):
             return any(arg is not ... and is_incompatible(arg) for arg in type_.__args__)  # type: ignore
+        elif is_union_annotation(type_):
+            args = get_args(type_)
+            return bool(is_incompatible(args[0]))  # type: ignore
         origin = get_origin(type_)
-        # Callable isn't a class so the subsequent issubclass check would raise
-        # a rype-error if called on it
-        if isinstance(origin, Callable):
-            return True
         if origin is type:
             args = get_args(type_)
             return bool(is_incompatible(args[0]))  # type: ignore
@@ -195,14 +204,6 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
                 if module_name is not None:  # Import required
                     import_name = default_.__class__.__name__
                     string_imports.add(f"from {module_name} import {import_name}")
-
-            if is_literal_type(type_):
-                values = get_args(type_)
-                assert values
-                elem_type = type(values[0])
-                if all(isinstance(value, elem_type) for value in values[1:]):
-                    type_ = elem_type
-                    incompatible_annotation_type = False
 
             if missing_annotation_type or incompatible_annotation_type:
                 type_ = Any

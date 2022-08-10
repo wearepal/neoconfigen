@@ -1,11 +1,39 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 import sys
 from enum import Enum
-from typing import Any, List, Optional, Set, Tuple, Type
+from typing import (
+    Any,
+    List,
+    Literal,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+    Union,
+    get_args,
+    get_origin,
+)
 
-from typing_inspect import get_args, get_origin  # type: ignore
+from typing_extensions import TypeAlias
+from typing_inspect import is_literal_type  # type: ignore
 
 from omegaconf._utils import _resolve_optional, is_primitive_type_annotation
+
+PrimitiveType: TypeAlias = Union[
+    Type[int], Type[bool], Type[str], Type[bytes], Type[Enum], Type[None]
+]
+
+
+def _resolve_literal(
+    type_: Literal,
+) -> Union[PrimitiveType, Type[PrimitiveType]]:
+    values = get_args(type_)
+    assert values
+    value_types = set(type(value) for value in values)
+    if len(value_types) == 1:
+        return value_types.pop()
+    # Constructing a Union type dynamically using a tuple is perfectly valid.
+    return Union[tuple(value_types)]  # type: ignore
 
 
 # borrowed from OmegaConf
@@ -18,6 +46,9 @@ def type_str(type_: Any) -> str:
     if type_ is ...:
         return "..."
 
+    if is_literal_type(type_):
+        type_ = _resolve_literal(type_)
+
     if hasattr(type_, "__name__"):
         name = str(type_.__name__)
     elif sys.version_info < (3, 7, 0):
@@ -28,6 +59,7 @@ def type_str(type_: Any) -> str:
             name = str(type_)
             if name.startswith("typing."):
                 name = name[len("typing.") :]
+
     elif type_._name is None and (get_origin(type_) is not None):
         name = type_str(type_.__origin__)
     else:
@@ -65,6 +97,8 @@ def convert_imports(imports: Set[Type], string_imports: Set[str]) -> List[str]:
             classname = "Any"
         elif import_ is Optional:  # type: ignore
             classname = "Optional"
+        elif origin is Union:  # type: ignore
+            classname = "Union"
         elif origin is list:
             classname = "List"
         elif origin is tuple:
@@ -80,9 +114,11 @@ def convert_imports(imports: Set[Type], string_imports: Set[str]) -> List[str]:
 
 
 def collect_imports(imports: Set[Type], type_: Type) -> None:
-    for arg in get_args(type_):
-        if arg is not ...:
-            collect_imports(imports, arg)
-    if _resolve_optional(type_)[0] and type_ is not Any:
-        type_ = Optional
-    imports.add(type_)
+    # Literal values are not types, necessitating this special-casing, inelegant as it is.
+    if not is_literal_type(type_):
+        for arg in get_args(type_):
+            if arg is not ...:
+                collect_imports(imports, arg)
+        if _resolve_optional(type_)[0] and type_ is not Any:
+            type_ = Optional
+        imports.add(type_)
