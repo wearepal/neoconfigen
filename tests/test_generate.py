@@ -245,10 +245,10 @@ def test_generated_code_with_default_flags(
         ),
         pytest.param(
             "WithLiterals",
-            {"fairness": "DP", "bit_depth": 5},
+            {"activation": "relu", "fairness": "DP", "bit_depth": 5},
             [],
             {},
-            WithLiterals(fairness="DP", bit_depth=5),
+            WithLiterals(activation="relu", fairness="DP", bit_depth=5),
             id="WithLiterals",
         ),
     ],

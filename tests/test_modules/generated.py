@@ -114,5 +114,9 @@ class PeskySentinelUsageConf:
 @dataclass
 class WithLiteralsConf:
     _target_: str = "tests.test_modules.WithLiterals"
-    fairness: str = MISSING
-    bit_depth: int = 8
+    activation: str = MISSING
+    fairness: Optional[str] = None
+    bit_depth: Any = 5  # Optional[Union[int, float]]
+    color1: Color = Color.BLUE
+    color2: Optional[Color] = Color.GREEN
+    deterministic: Any = None  # Optional[Union[bool, str]]

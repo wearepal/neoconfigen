@@ -8,10 +8,21 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from textwrap import dedent
-from typing import Any, Callable, Dict, List, Optional, Set, Type, get_type_hints
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Set,
+    Type,
+    get_args,
+    get_origin,
+    get_type_hints,
+)
 
 from jinja2 import Environment, PackageLoader, Template  # type: ignore
-from typing_inspect import get_args, get_origin, is_literal_type  # type: ignore
+from typing_inspect import is_literal_type  # type: ignore
 
 import hydra
 from omegaconf import OmegaConf, ValidationError
@@ -31,6 +42,7 @@ from configen.utils import (
     convert_imports,
     is_tuple_annotation,
     type_str,
+    validate_literal,
 )
 
 # Adding the current working directory to the PYTHONPATH to allow generation of code
@@ -100,6 +112,9 @@ def is_incompatible(type_: Type[Any]) -> bool:
         return False
 
     try:
+        if is_literal_type(type_):
+            validate_literal(type_)  # type: ignore
+            return False
         if is_list_annotation(type_):
             lt = get_list_element_type(type_)
             return is_incompatible(lt)
@@ -189,7 +204,6 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
             incompatible_value_type = not missing_value and is_incompatible(type(default_))
             missing_annotation_type = name not in resolved_hints
             incompatible_annotation_type = not missing_annotation_type and is_incompatible(type_)
-
             if isinstance(default_, Enum):
                 module_name = getattr(default_, "__module__", None)
                 if module_name is not None:  # Import required
@@ -197,12 +211,8 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
                     string_imports.add(f"from {module_name} import {import_name}")
 
             if is_literal_type(type_):
-                values = get_args(type_)
-                assert values
-                elem_type = type(values[0])
-                if all(isinstance(value, elem_type) for value in values[1:]):
-                    type_ = elem_type
-                    incompatible_annotation_type = False
+                validate_literal(type_)
+                incompatible_annotation_type = False
 
             if missing_annotation_type or incompatible_annotation_type:
                 type_ = Any
