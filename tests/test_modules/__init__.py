@@ -1,11 +1,12 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from typing_extensions import Literal, TypeAlias
 
-from omegaconf import MISSING
+from omegaconf import MISSING, DictConfig
 
 
 class Color(Enum):
@@ -56,6 +57,14 @@ class IntArg:
         return isinstance(other, type(self)) and other.param == self.param
 
 
+class PathArg:
+    def __init__(self, param: Path):
+        self.param = param
+
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and other.param == self.param
+
+
 class Args:
     def __init__(self, *args: Any):
         self.param = args
@@ -71,15 +80,25 @@ class Kwargs:
 
 class UnionArg:
     # Union is now supported by OmegaConf for primitive types.
-    def __init__(self, param: Union[int, float], param2: Optional[Union[str, Color, bool]] = None):
+    def __init__(
+        self,
+        param: Union[int, float],
+        param2: Optional[Union[str, Color, bool]] = None,
+        param3: Union[str, Path] = "",
+        param4: Union[str, DictConfig] = "",
+    ):
         self.param = param
         self.param2 = param2
+        self.param3 = param3
+        self.param4 = param4
 
     def __eq__(self, other):
         return (
             isinstance(other, type(self))
             and other.param == self.param
             and other.param2 == self.param2
+            and other.param3 == self.param3
+            and other.param4 == self.param4
         )
 
 

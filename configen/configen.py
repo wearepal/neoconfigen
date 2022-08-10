@@ -100,7 +100,7 @@ class ClassInfo:
 
 def is_incompatible(type_: Type[Any]) -> bool:
     _, type_ = _resolve_optional(type_)
-    if type_ in (type(None), tuple, list, dict):
+    if type_ in (type(None), tuple, list, dict, Path):
         return False
     try:
         # Literal values must be primitive so no need to run a compatibility-check over them.
@@ -122,7 +122,7 @@ def is_incompatible(type_: Type[Any]) -> bool:
             return any(arg is not ... and is_incompatible(arg) for arg in type_.__args__)  # type: ignore
         elif is_union_annotation(type_):
             args = get_args(type_)
-            return bool(is_incompatible(args[0]))  # type: ignore
+            return any(bool(is_incompatible(arg)) for arg in args)  # type: ignore
         origin = get_origin(type_)
         if origin is type:
             args = get_args(type_)
