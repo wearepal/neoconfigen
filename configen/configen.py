@@ -8,10 +8,21 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from textwrap import dedent
-from typing import Any, Callable, Dict, List, Optional, Set, Type, get_type_hints
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Set,
+    Type,
+    get_args,
+    get_origin,
+    get_type_hints,
+)
 
 from jinja2 import Environment, PackageLoader, Template  # type: ignore
-from typing_inspect import get_args, get_origin, is_literal_type  # type: ignore
+from typing_inspect import is_literal_type  # type: ignore
 
 import hydra
 from omegaconf import OmegaConf, ValidationError
