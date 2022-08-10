@@ -70,12 +70,17 @@ class Kwargs:
 
 
 class UnionArg:
-    # Union is not currently supported by OmegaConf, it will be typed as Any
-    def __init__(self, param: Union[int, float]):
+    # Union is now supported by OmegaConf for primitive types.
+    def __init__(self, param: Union[int, float], param2: Optional[Union[str, Color, bool]] = None):
         self.param = param
+        self.param2 = param2
 
     def __eq__(self, other):
-        return isinstance(other, type(self)) and other.param == self.param
+        return (
+            isinstance(other, type(self))
+            and other.param == self.param
+            and other.param2 == self.param2
+        )
 
 
 class WithLibraryClassArg:
@@ -239,6 +244,7 @@ class WithLiterals:
         color1: Literal[Color.BLUE, Color.GREEN] = Color.BLUE,
         color2: Optional[Literal[Color.BLUE, Color.GREEN]] = Color.GREEN,
         deterministic: Optional[Union[bool, _LITERAL_WARN]] = None,
+        mixed_type_lit: Literal[0, "foo", "bar", Color.BLUE] = 0,
     ):
         self.activation = activation
         self.fairness = fairness
@@ -246,6 +252,7 @@ class WithLiterals:
         self.color1 = color1
         self.color2 = color2
         self.deterministic = deterministic
+        self.mixed_type_lit = mixed_type_lit
 
     def __eq__(self, other):
         return (

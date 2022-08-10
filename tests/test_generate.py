@@ -159,14 +159,13 @@ def test_generated_code_with_default_flags(
         pytest.param("IntArg", {"param": 1}, [], {}, IntArg(param=1), id="IntArg"),
         pytest.param("UnionArg", {"param": 1}, [], {}, UnionArg(param=1), id="UnionArg"),
         pytest.param("UnionArg", {"param": 3.14}, [], {}, UnionArg(param=3.14), id="UnionArg"),
-        # This is okay because Union is not supported and is treated as Any
         pytest.param(
             "UnionArg",
-            {"param": "str"},
+            {"param": 42},
             [],
             {},
-            UnionArg(param="str"),
-            id="UnionArg:illegal_but_ok_arg",
+            UnionArg(param=42),
+            id="UnionArg",
         ),
         pytest.param(
             "WithLibraryClassArg",

@@ -38,11 +38,11 @@ from omegaconf._utils import (
 
 from configen.config import Config, ConfigenConf, ModuleConf
 from configen.utils import (
+    _resolve_literal,
     collect_imports,
     convert_imports,
     is_tuple_annotation,
     type_str,
-    validate_literal,
 )
 
 # Adding the current working directory to the PYTHONPATH to allow generation of code
@@ -102,29 +102,31 @@ class ClassInfo:
 
 def is_incompatible(type_: Type[Any]) -> bool:
 
-    opt = _resolve_optional(type_)
-    # Unions are not supported (Except Optional)
-    if not opt[0] and is_union_annotation(type_):
-        return True
+    _, type_ = _resolve_optional(type_)
+    # Unions are now supported!
+    # if not opt[0] and is_union_annotation(type_):
+    #     return True
 
-    type_ = opt[1]
     if type_ in (type(None), tuple, list, dict):
         return False
 
     try:
         if is_literal_type(type_):
-            validate_literal(type_)  # type: ignore
+            _resolve_literal(type_)  # type: ignore
             return False
-        if is_list_annotation(type_):
+        elif is_list_annotation(type_):
             lt = get_list_element_type(type_)
             return is_incompatible(lt)
-        if is_dict_annotation(type_):
+        elif is_dict_annotation(type_):
             kvt = get_dict_key_value_types(type_)
             if not issubclass(kvt[0], (str, Enum)):
                 return True
             return is_incompatible(kvt[1])
-        if is_tuple_annotation(type_):
+        elif is_tuple_annotation(type_):
             return any(arg is not ... and is_incompatible(arg) for arg in type_.__args__)  # type: ignore
+        elif is_union_annotation(type_):
+            args = get_args(type_)
+            return bool(is_incompatible(args[0]))  # type: ignore
         origin = get_origin(type_)
         # Callable isn't a class so the subsequent issubclass check would raise
         # a rype-error if called on it
@@ -204,6 +206,7 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
             incompatible_value_type = not missing_value and is_incompatible(type(default_))
             missing_annotation_type = name not in resolved_hints
             incompatible_annotation_type = not missing_annotation_type and is_incompatible(type_)
+
             if isinstance(default_, Enum):
                 module_name = getattr(default_, "__module__", None)
                 if module_name is not None:  # Import required
@@ -211,7 +214,7 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
                     string_imports.add(f"from {module_name} import {import_name}")
 
             if is_literal_type(type_):
-                validate_literal(type_)
+                _resolve_literal(type_)
                 incompatible_annotation_type = False
 
             if missing_annotation_type or incompatible_annotation_type:
