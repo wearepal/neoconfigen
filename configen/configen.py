@@ -22,7 +22,7 @@ from typing import (
 )
 
 from jinja2 import Environment, PackageLoader, Template  # type: ignore
-from typing_inspect import is_literal_type  # type: ignore
+from typing_inspect import is_callable_type, is_literal_type  # type: ignore
 
 import hydra
 from omegaconf import OmegaConf, ValidationError
@@ -111,9 +111,13 @@ def is_incompatible(type_: Type[Any]) -> bool:
         return False
 
     try:
+        # Literal values must be primitive so no need to run a compatibility-check over them.
         if is_literal_type(type_):
-            _resolve_literal(type_)  # type: ignore
             return False
+        # Callable isn't a class so the subsequent issubclass check would raise
+        # a rype-error if called on it
+        elif is_callable_type(type_):
+            return True
         elif is_list_annotation(type_):
             lt = get_list_element_type(type_)
             return is_incompatible(lt)
@@ -128,10 +132,6 @@ def is_incompatible(type_: Type[Any]) -> bool:
             args = get_args(type_)
             return bool(is_incompatible(args[0]))  # type: ignore
         origin = get_origin(type_)
-        # Callable isn't a class so the subsequent issubclass check would raise
-        # a rype-error if called on it
-        if isinstance(origin, Callable):
-            return True
         if origin is type:
             args = get_args(type_)
             return bool(is_incompatible(args[0]))  # type: ignore
