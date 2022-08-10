@@ -3,13 +3,15 @@ import sys
 from enum import Enum
 from typing import Any, List, Optional, Set, Tuple, Type, Union
 
-from typing_extensions import Literal, Type
+from typing_extensions import Literal
 from typing_inspect import get_args, get_origin, is_literal_type  # type: ignore
 
 from omegaconf._utils import _resolve_optional, is_primitive_type_annotation
 
 
-def validate_literal(type_: Literal) -> Union[Type[int], Type[bool], Type[str], Type[bytes], Type[Enum]]:
+def validate_literal(
+    type_: Literal,
+) -> Union[Type[int], Type[bool], Type[str], Type[bytes], Type[Enum]]:
     values = get_args(type_)
     assert values
     elem_type = type(values[0])
