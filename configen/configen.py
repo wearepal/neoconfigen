@@ -101,15 +101,9 @@ class ClassInfo:
 
 
 def is_incompatible(type_: Type[Any]) -> bool:
-
     _, type_ = _resolve_optional(type_)
-    # Unions are now supported!
-    # if not opt[0] and is_union_annotation(type_):
-    #     return True
-
     if type_ in (type(None), tuple, list, dict):
         return False
-
     try:
         # Literal values must be primitive so no need to run a compatibility-check over them.
         if is_literal_type(type_):
