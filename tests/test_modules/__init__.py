@@ -86,11 +86,13 @@ class UnionArg:
         param2: Optional[Union[str, Color, bool]] = None,
         param3: Union[str, Path] = "",
         param4: Union[str, DictConfig] = "",
+        param5: Union[str, List[str], Tuple[str, ...]] = ("foo", "bar"),
     ):
         self.param = param
         self.param2 = param2
         self.param3 = param3
         self.param4 = param4
+        self.param5 = param5
 
     def __eq__(self, other):
         return (
@@ -99,6 +101,7 @@ class UnionArg:
             and other.param2 == self.param2
             and other.param3 == self.param3
             and other.param4 == self.param4
+            and other.param5 == self.param5
         )
 
 
@@ -264,6 +267,7 @@ class WithLiterals:
         color2: Optional[Literal[Color.BLUE, Color.GREEN]] = Color.GREEN,
         deterministic: Optional[Union[bool, _LITERAL_WARN]] = None,
         mixed_type_lit: Literal[0, "foo", "bar", Color.BLUE] = 0,
+        unioned_mixed_type_lit: Union[Literal["foo", "bar", Color.BLUE], int] = 47,
     ):
         self.activation = activation
         self.fairness = fairness
@@ -272,6 +276,7 @@ class WithLiterals:
         self.color2 = color2
         self.deterministic = deterministic
         self.mixed_type_lit = mixed_type_lit
+        self.unioned_mixed_type_lit = unioned_mixed_type_lit
 
     def __eq__(self, other):
         return (
@@ -282,4 +287,6 @@ class WithLiterals:
             and self.color1 == other.color1
             and self.color2 == other.color2
             and self.deterministic == other.deterministic
+            and self.mixed_type_lit == other.mixed_type_lit
+            and self.unioned_mixed_type_lit == other.unioned_mixed_type_lit
         )
