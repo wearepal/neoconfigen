@@ -1,6 +1,7 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 import sys
 from enum import Enum
+from pathlib import Path
 from typing import (
     Any,
     List,
@@ -18,7 +19,6 @@ from typing_extensions import TypeAlias
 from typing_inspect import is_literal_type  # type: ignore
 
 from omegaconf._utils import _resolve_optional, is_primitive_type_annotation
-from tests.test_generate import Path
 
 PrimitiveType: TypeAlias = Union[
     Type[int], Type[bool], Type[str], Type[bytes], Type[Enum], Type[None]
