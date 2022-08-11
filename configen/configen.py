@@ -31,6 +31,7 @@ from omegaconf._utils import (
     get_list_element_type,
     is_dict_annotation,
     is_list_annotation,
+    is_primitive_type_annotation,
     is_structured_config,
     is_union_annotation,
 )
@@ -122,7 +123,10 @@ def is_incompatible(type_: Type[Any]) -> bool:
             return any(arg is not ... and is_incompatible(arg) for arg in type_.__args__)  # type: ignore
         elif is_union_annotation(type_):
             args = get_args(type_)
-            return any(bool(is_incompatible(arg)) for arg in args)  # type: ignore
+            # OmegaConf only supports the unioning of primitive types; Literal types qualify as
+            # 'compatible' here due to downstream conversion into primitives (since Litral types
+            # themselves are currently not supported).
+            return any(not (is_primitive_type_annotation(arg) or is_literal_type(arg)) for arg in args)  # type: ignore
         origin = get_origin(type_)
         if origin is type:
             args = get_args(type_)
@@ -218,6 +222,7 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
                     default_ = f"field(default_factory=lambda: {default_})"
 
             missing_default = True if incompatible_value_type else missing_value
+            # if class_name == "ModelCheckpoint":
             collect_imports(imports, type_)
 
             if missing_default:

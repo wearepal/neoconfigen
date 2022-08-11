@@ -58,6 +58,7 @@ class UnionArgConf:
     param2: Optional[Union[str, Color, bool]] = None
     param3: Union[str, Path] = ""
     param4: Any = ""  # Union[str, DictConfig]
+    param5: Any = ('foo', 'bar')  # Union[str, List[str], Tuple[str, ...]]
 
 
 @dataclass
@@ -132,3 +133,4 @@ class WithLiteralsConf:
     color2: Optional[Color] = Color.GREEN
     deterministic: Optional[Union[bool, str]] = None
     mixed_type_lit: Union[int, Color, str] = 0
+    unioned_mixed_type_lit: Union[Union[Color, str], int] = 47
