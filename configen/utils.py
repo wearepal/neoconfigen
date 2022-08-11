@@ -16,7 +16,7 @@ from typing import (
 )
 
 from typing_extensions import TypeAlias
-from typing_inspect import is_literal_type  # type: ignore
+from typing_inspect import is_literal_type, is_union_type  # type: ignore
 
 from omegaconf._utils import _resolve_optional, is_primitive_type_annotation
 
@@ -52,15 +52,6 @@ def type_str(type_: Any) -> str:
 
     if hasattr(type_, "__name__"):
         name = str(type_.__name__)
-    elif sys.version_info < (3, 7, 0):
-        # Python 3.6
-        if type_.__origin__ is not None:
-            name = type_str(type_.__origin__)
-        else:
-            name = str(type_)
-            if name.startswith("typing."):
-                name = name[len("typing.") :]
-
     elif type_._name is None and (get_origin(type_) is not None):
         name = type_str(type_.__origin__)
     else:
@@ -93,21 +84,22 @@ def is_tuple_annotation(type_: Any) -> bool:
 def convert_imports(imports: Set[Type], string_imports: Set[str]) -> List[str]:
     tmp = set()
     for import_ in imports:
-        origin = getattr(import_, "__origin__", None)
         if import_ is Any:
             classname = "Any"
         elif import_ is Optional:  # type: ignore
             classname = "Optional"
-        elif origin is Union:  # type: ignore
+        elif import_ is Union:  # type: ignore
             classname = "Union"
-        elif origin is list:
-            classname = "List"
-        elif origin is tuple:
-            classname = "Tuple"
-        elif origin is dict:
-            classname = "Dict"
         else:
-            classname = import_.__name__
+            origin = getattr(import_, "__origin__", None)
+            if origin is list:
+                classname = "List"
+            elif origin is tuple:
+                classname = "Tuple"
+            elif origin is dict:
+                classname = "Dict"
+            else:
+                classname = import_.__name__
         if (
             not is_primitive_type_annotation(import_)
             or issubclass(import_, Enum)
@@ -124,6 +116,14 @@ def collect_imports(imports: Set[Type], type_: Type) -> None:
         for arg in get_args(type_):
             if arg is not ...:
                 collect_imports(imports, arg)
-        if _resolve_optional(type_)[0] and type_ is not Any:
-            type_ = Optional
-        imports.add(type_)
+        imports_ = set()
+        is_opt, inner_type = _resolve_optional(type_)
+        if is_opt and type_ is not Any:
+            imports_.add(Optional)
+            if is_union_type(inner_type):
+                imports_.add(Union)
+        elif is_union_type(type_):
+            imports_.add(Union)
+        else:
+            imports_.add(type_)
+        imports.update(imports_)
