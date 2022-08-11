@@ -124,8 +124,8 @@ def is_incompatible(type_: Type[Any]) -> bool:
         elif is_union_annotation(type_):
             args = get_args(type_)
             # OmegaConf only supports the unioning of primitive types; Literal types qualify as
-            # 'compatible' here due to downstream conversion into primitives (since Litral types
-            # themselves are currently not supported).
+            # 'compatible' here due to downstream conversion into primitive types (since Literal 
+            # types themselves are currently not supported).
             return any(not (is_primitive_type_annotation(arg) or is_literal_type(arg)) for arg in args)  # type: ignore
         origin = get_origin(type_)
         if origin is type:
