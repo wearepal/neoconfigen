@@ -52,7 +52,6 @@ def type_str(type_: Any) -> str:
 
     if hasattr(type_, "__name__"):
         name = str(type_.__name__)
-
     elif type_._name is None and (get_origin(type_) is not None):
         name = type_str(type_.__origin__)
     else:
