@@ -222,7 +222,6 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
                     default_ = f"field(default_factory=lambda: {default_})"
 
             missing_default = True if incompatible_value_type else missing_value
-            # if class_name == "ModelCheckpoint":
             collect_imports(imports, type_)
 
             if missing_default:
