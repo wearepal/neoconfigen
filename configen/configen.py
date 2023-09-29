@@ -149,7 +149,6 @@ def is_incompatible(type_: Type[Any]) -> bool:
 
 
 def get_default_flags(module: ModuleConf) -> List[Parameter]:
-
     def_flags: List[Parameter] = []
 
     if module.default_flags._convert_ is not None:
