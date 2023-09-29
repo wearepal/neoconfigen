@@ -64,8 +64,11 @@ def type_str(type_: Any) -> str:
         in_args_str = ", ".join(type_str(inner_type) for inner_type in args[0])
         out_args_str = type_str(args[1])
         ret = f"{name}[[{in_args_str}], {out_args_str}]"
+    elif name == "Union":
+        args_str = ", ".join(sorted(type_str(inner_type) for inner_type in args))
+        ret = f"{name}[{args_str}]"
     else:
-        args_str = ", ".join(type_str(inner_type) for inner_type in (list(args)))
+        args_str = ", ".join(type_str(inner_type) for inner_type in args)
         ret = f"{name}[{args_str}]"
     if is_optional:
         return f"Optional[{ret}]"

@@ -20,15 +20,15 @@ keywords=["hydra", "python"]
 readme="README.md"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = ">=3.8,<3.12"
 hydra-core = "^1.2.0"
 jinja2 = "^2.11.3"
 markupsafe = "<=2.0.1"
 typing-inspect = "^0.7.1"
 
 [tool.poetry.dev-dependencies]
-black = "^20.8b1"
-mypy = "^0.800"
+black = "^23.1"
+mypy = "^1.5.1"
 pytest = "^6.2.2"
 isort = "^5.7.0"
 
