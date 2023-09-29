@@ -2,9 +2,9 @@
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Literal, Optional, Tuple, Union
 
-from typing_extensions import Literal, TypeAlias
+from typing_extensions import TypeAlias
 
 from omegaconf import MISSING, DictConfig
 
@@ -87,12 +87,14 @@ class UnionArg:
         param3: Union[str, Path] = "",
         param4: Union[str, DictConfig] = "",
         param5: Union[str, List[str], Tuple[str, ...]] = ("foo", "bar"),
+        param6: Union[str, list[str], tuple[str, ...]] = ("foo", "bar"),
     ):
         self.param = param
         self.param2 = param2
         self.param3 = param3
         self.param4 = param4
         self.param5 = param5
+        self.param6 = param6
 
     def __eq__(self, other):
         return (
@@ -102,6 +104,7 @@ class UnionArg:
             and other.param3 == self.param3
             and other.param4 == self.param4
             and other.param5 == self.param5
+            and other.param6 == self.param6
         )
 
 
@@ -170,25 +173,31 @@ class ListValues:
     def __init__(
         self,
         lst: List[str],
+        lst2: list[str],
         enum_lst: List[Color],
         passthrough_list: List[LibraryClass],
         dataclass_val: List[User],
         def_value: List[str] = [],
+        def_value2: list[str] = [],
     ):
         self.lst = lst
+        self.lst2 = lst2
         self.enum_lst = enum_lst
         self.passthrough_list = passthrough_list
         self.dataclass_val = dataclass_val
         self.def_value = def_value
+        self.def_value2 = def_value2
 
     def __eq__(self, other):
         return (
             isinstance(other, type(self))
             and self.lst == other.lst
+            and self.lst2 == other.lst2
             and self.enum_lst == other.enum_lst
             and self.passthrough_list == other.passthrough_list
             and self.dataclass_val == other.dataclass_val
             and self.def_value == other.def_value
+            and self.def_value2 == other.def_value2
         )
 
 
@@ -196,25 +205,31 @@ class DictValues:
     def __init__(
         self,
         dct: Dict[str, str],
+        dct2: dict[str, str],
         enum_key: Dict[Color, str],
         dataclass_val: Dict[str, User],
         passthrough_dict: Dict[str, LibraryClass],
         def_value: Dict[str, str] = {},
+        def_value2: dict[str, str] = {},
     ):
         self.dct = dct
+        self.dct2 = dct2
         self.enum_key = enum_key
         self.dataclass_val = dataclass_val
         self.passthrough_dict = passthrough_dict
         self.def_value = def_value
+        self.def_value2 = def_value2
 
     def __eq__(self, other):
         return (
             isinstance(other, type(self))
             and self.dct == other.dct
+            and self.dct2 == other.dct2
             and self.enum_key == other.enum_key
             and self.dataclass_val == other.dataclass_val
             and self.passthrough_dict == other.passthrough_dict
             and self.def_value == other.def_value
+            and self.def_value2 == other.def_value2
         )
 
 
@@ -238,12 +253,14 @@ class Tuples:
     def __init__(
         self,
         t1: Tuple[float, float],
-        t2=(1, 2, 3),
-        t3: Tuple[float, ...] = (0.1, 0.2, 0.3),
+        t2: tuple[float, float],
+        t3=(1, 2, 3),
+        t4: Tuple[float, ...] = (0.1, 0.2, 0.3),
     ):
         self.t1 = t1
         self.t2 = t2
         self.t3 = t3
+        self.t4 = t4
 
     def __eq__(self, other):
         return (
@@ -251,6 +268,7 @@ class Tuples:
             and self.t1 == other.t1
             and self.t2 == other.t2
             and self.t3 == other.t3
+            and self.t4 == other.t4
         )
 
 
