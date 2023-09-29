@@ -12,6 +12,7 @@ from typing import (
     Any,
     Dict,
     List,
+    Literal,
     Optional,
     Set,
     Type,
@@ -105,7 +106,7 @@ def is_incompatible(type_: Type[Any]) -> bool:
         return False
     try:
         # Literal values must be primitive so no need to run a compatibility-check over them.
-        if is_literal_type(type_):
+        if is_literal_type(type_) or get_origin(type_) is Literal:
             return False
         # Callable isn't a class so the subsequent issubclass check would raise
         # a rype-error if called on it
@@ -126,7 +127,14 @@ def is_incompatible(type_: Type[Any]) -> bool:
             # OmegaConf only supports the unioning of primitive types; Literal types qualify as
             # 'compatible' here due to downstream conversion into primitive types (since Literal
             # types themselves are currently not supported).
-            return any(not (is_primitive_type_annotation(arg) or is_literal_type(arg)) for arg in args)  # type: ignore
+            return any(
+                not (
+                    is_primitive_type_annotation(arg)
+                    or is_literal_type(arg)
+                    or get_origin(arg) is Literal
+                )
+                for arg in args
+            )
         origin = get_origin(type_)
         if origin is type:
             args = get_args(type_)
@@ -134,11 +142,8 @@ def is_incompatible(type_: Type[Any]) -> bool:
     except ValidationError:
         return True
 
-    try:
-        if type_ is Any or issubclass(type_, (int, float, str, bool, Enum)):
-            return False
-    except Exception as exc:
-        raise RuntimeError(f"{type_=}, {type(type_)=} {type.__module__=}") from exc
+    if type_ is Any or issubclass(type_, (int, float, str, bool, Enum)):
+        return False
     if is_structured_config(type_):
         try:
             OmegaConf.structured(type_)  # verify it's actually legal
