@@ -132,5 +132,5 @@ class WithLiteralsConf:
     color1: Color = Color.BLUE
     color2: Optional[Color] = Color.GREEN
     deterministic: Optional[Union[bool, str]] = None
-    mixed_type_lit: Union[int, Color, str] = 0
-    unioned_mixed_type_lit: Union[Union[Color, str], int] = 47
+    mixed_type_lit: Union[str, int, Color] = 0
+    unioned_mixed_type_lit: Union[Union[str, Color], int] = 47
