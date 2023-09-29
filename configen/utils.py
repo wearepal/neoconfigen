@@ -108,7 +108,8 @@ def convert_imports(imports: Set[Type], string_imports: Set[str]) -> List[str]:
             or issubclass(import_, Enum)
             or (import_ is Path)
         ):
-            tmp.add(f"from {import_.__module__} import {classname}")
+            if import_.__module__ != "builtins":
+                tmp.add(f"from {import_.__module__} import {classname}")
 
     return sorted(list(tmp.union(string_imports)))
 

@@ -8,7 +8,6 @@ license = "MIT License"
 packages = [{ include = "configen" }]
 include=["configen/py.typed"]
 classifiers=[
-  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
@@ -20,7 +19,7 @@ keywords=["hydra", "python"]
 readme="README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.12"
+python = ">=3.9,<3.12"
 hydra-core = "^1.2.0"
 jinja2 = "^2.11.3"
 markupsafe = "<=2.0.1"
@@ -37,27 +36,8 @@ configen = 'configen.configen:main'
 
 [tool.black]
 line-length = 100
-target-version = ['py38']
+target-version = ['py39']
 include = '\.pyi?$'
-exclude = '''
-(
-  /(
-      .eggs         # exclude a few common directories in the
-    | .git          # root of the project
-    | .hg
-    | .mypy_cache
-    | hydra/grammar/gen
-    | tools/configen/example/gen
-    | .tox
-    | .nox
-    | website
-    | .venv
-    | ~
-    | _build
-    | dist
-  )
-)
-'''
 
 [tool.isort]
 known_third_party = [
@@ -92,7 +72,7 @@ classes = ["MISSING"]
 include = ["configen"]
 exclude = ["**/node_modules", "**/__pycache__"]
 typeCheckingMode = "basic"
-pythonVersion = "3.8"
+pythonVersion = "3.9"
 reportUnusedImport = "error"
 reportDuplicateImport  = "error"
 reportIncompatibleVariableOverride = "error"
