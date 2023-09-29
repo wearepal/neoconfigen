@@ -54,11 +54,11 @@ class KwargsConf:
 @dataclass
 class UnionArgConf:
     _target_: str = "tests.test_modules.UnionArg"
-    param: Union[int, float] = MISSING
-    param2: Optional[Union[str, Color, bool]] = None
-    param3: Union[str, Path] = ""
-    param4: Any = ""  # Union[str, DictConfig]
-    param5: Any = ('foo', 'bar')  # Union[str, List[str], Tuple[str, ...]]
+    param: Union[float, int] = MISSING
+    param2: Optional[Union[Color, bool, str]] = None
+    param3: Union[Path, str] = ""
+    param4: Any = ""  # Union[DictConfig, str]
+    param5: Any = ('foo', 'bar')  # Union[List[str], Tuple[str, ...], str]
 
 
 @dataclass
@@ -128,9 +128,9 @@ class WithLiteralsConf:
     _target_: str = "tests.test_modules.WithLiterals"
     activation: str = MISSING
     fairness: Optional[str] = None
-    bit_depth: Optional[Union[int, float]] = 5
+    bit_depth: Optional[Union[float, int]] = 5
     color1: Color = Color.BLUE
     color2: Optional[Color] = Color.GREEN
     deterministic: Optional[Union[bool, str]] = None
-    mixed_type_lit: Union[str, int, Color] = 0
-    unioned_mixed_type_lit: Union[Union[str, Color], int] = 47
+    mixed_type_lit: Union[Color, int, str] = 0
+    unioned_mixed_type_lit: Union[Union[Color, str], int] = 47
