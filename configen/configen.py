@@ -213,7 +213,7 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
                 collect_imports(imports, Any)
 
             if not missing_value:
-                if type_ == str or type(default_) == str:
+                if type_ == str or type(default_) == str:  # noqa
                     default_ = f'"{default_}"'
                 elif isinstance(default_, list):
                     default_ = f"field(default_factory=lambda: {default_})"
