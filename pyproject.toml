@@ -38,7 +38,7 @@ configen = 'configen.configen:main'
 line-length = 100
 target-version = ['py39']
 include = '\.pyi?$'
-exclude-extend = ["hydra/grammar/gen", "tools/configen/example/gen"]
+extend-exclude = "(hydra/grammar/gen|tools/configen/example/gen)"
 
 [tool.isort]
 known_third_party = [
