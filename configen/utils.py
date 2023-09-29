@@ -47,7 +47,7 @@ def type_str(type_: Any) -> str:
     if type_ is ...:
         return "..."
 
-    if is_literal_type(type_):
+    if is_literal_type(type_) or get_origin(type_) is Literal:
         type_ = _resolve_literal(type_)
 
     if hasattr(type_, "__name__"):
@@ -108,14 +108,15 @@ def convert_imports(imports: Set[Type], string_imports: Set[str]) -> List[str]:
             or issubclass(import_, Enum)
             or (import_ is Path)
         ):
-            tmp.add(f"from {import_.__module__} import {classname}")
+            if import_.__module__ != "builtins":
+                tmp.add(f"from {import_.__module__} import {classname}")
 
     return sorted(list(tmp.union(string_imports)))
 
 
 def collect_imports(imports: Set[Type], type_: Type) -> None:
     # Literal values are not types, necessitating this special-casing, inelegant as it is.
-    if not is_literal_type(type_):
+    if not is_literal_type(type_) and get_origin(type_) is not Literal:
         for arg in get_args(type_):
             if arg is not ...:
                 collect_imports(imports, arg)

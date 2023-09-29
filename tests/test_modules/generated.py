@@ -59,6 +59,7 @@ class UnionArgConf:
     param3: Union[Path, str] = ""
     param4: Any = ""  # Union[DictConfig, str]
     param5: Any = ('foo', 'bar')  # Union[List[str], Tuple[str, ...], str]
+    param6: Any = ('foo', 'bar')  # Union[list[str], str, tuple[str, ...]]
 
 
 @dataclass
@@ -93,28 +94,33 @@ class WithUntypedStringDefaultConf:
 class ListValuesConf:
     _target_: str = "tests.test_modules.ListValues"
     lst: List[str] = MISSING
+    lst2: list[str] = MISSING
     enum_lst: List[Color] = MISSING
     passthrough_list: Any = MISSING  # List[LibraryClass]
     dataclass_val: List[User] = MISSING
     def_value: List[str] = field(default_factory=lambda: [])
+    def_value2: list[str] = field(default_factory=lambda: [])
 
 
 @dataclass
 class DictValuesConf:
     _target_: str = "tests.test_modules.DictValues"
     dct: Dict[str, str] = MISSING
+    dct2: dict[str, str] = MISSING
     enum_key: Dict[Color, str] = MISSING
     dataclass_val: Dict[str, User] = MISSING
     passthrough_dict: Any = MISSING  # Dict[str, LibraryClass]
     def_value: Dict[str, str] = field(default_factory=lambda: {})
+    def_value2: dict[str, str] = field(default_factory=lambda: {})
 
 
 @dataclass
 class TuplesConf:
     _target_: str = "tests.test_modules.Tuples"
     t1: Tuple[float, float] = MISSING
-    t2: Any = (1, 2, 3)
-    t3: Tuple[float, ...] = (0.1, 0.2, 0.3)
+    t2: tuple[float, float] = MISSING
+    t3: Any = (1, 2, 3)
+    t4: Tuple[float, ...] = (0.1, 0.2, 0.3)
 
 
 @dataclass

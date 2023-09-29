@@ -206,6 +206,7 @@ def test_generated_code_with_default_flags(
             "ListValues",
             {
                 "lst": ["1"],
+                "lst2": ["1"],
                 "enum_lst": ["RED"],
                 "dataclass_val": [{"name": "Bond", "age": 7}],
             },
@@ -213,6 +214,7 @@ def test_generated_code_with_default_flags(
             {"passthrough_list": [LibraryClass()]},
             ListValues(
                 lst=["1"],
+                lst2=["1"],
                 enum_lst=[Color.RED],
                 passthrough_list=[LibraryClass()],
                 dataclass_val=[User(name="Bond", age=7)],
@@ -223,6 +225,7 @@ def test_generated_code_with_default_flags(
             "DictValues",
             {
                 "dct": {"foo": "bar"},
+                "dct2": {"foo": "bar"},
                 "enum_key": {"RED": "red"},
                 "dataclass_val": {"007": {"name": "Bond", "age": 7}},
             },
@@ -230,13 +233,21 @@ def test_generated_code_with_default_flags(
             {"passthrough_dict": {"lib": LibraryClass()}},
             DictValues(
                 dct={"foo": "bar"},
+                dct2={"foo": "bar"},
                 enum_key={Color.RED: "red"},
                 dataclass_val={"007": User(name="Bond", age=7)},
                 passthrough_dict={"lib": LibraryClass()},
             ),
             id="DictValues",
         ),
-        pytest.param("Tuples", {"t1": [1.0, 2.1]}, [], {}, Tuples(t1=(1.0, 2.1)), id="Tuples"),
+        pytest.param(
+            "Tuples",
+            {"t1": [1.0, 2.1], "t2": [1.0, 2.1]},
+            [],
+            {},
+            Tuples(t1=(1.0, 2.1), t2=(1.0, 2.1)),
+            id="Tuples",
+        ),
         pytest.param(
             "PeskySentinelUsage",
             {},
@@ -270,7 +281,7 @@ def test_example_application(monkeypatch: Any, tmpdir: Path):
     cmd = [
         "my_app.py",
         f"hydra.run.dir={tmpdir}",
-        f"hydra.job.chdir=false",
+        "hydra.job.chdir=false",
         "user.name=Batman",
     ]
     result, _ = run_python_script(cmd, env={"PYTHONPATH": ".."})
