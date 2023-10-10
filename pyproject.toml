@@ -19,7 +19,7 @@ keywords=["hydra", "python"]
 readme="README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.12"
+python = ">=3.9,<3.13"
 hydra-core = "^1.2.0"
 jinja2 = "^2.11.3"
 markupsafe = "<=2.0.1"
