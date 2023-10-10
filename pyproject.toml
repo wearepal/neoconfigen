@@ -21,8 +21,8 @@ readme="README.md"
 [tool.poetry.dependencies]
 python = ">=3.9,<3.13"
 hydra-core = "^1.2.0"
-jinja2 = "^2.11.3"
-markupsafe = "<=2.0.1"
+jinja2 = "^3.0.3"
+markupsafe = "*"
 typing-inspect = "^0.7.1"
 
 [tool.poetry.dev-dependencies]
