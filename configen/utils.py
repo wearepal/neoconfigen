@@ -26,7 +26,7 @@ PrimitiveType: TypeAlias = Union[
 
 
 def _resolve_literal(
-    type_: Literal,
+    type_: type,
 ) -> Union[PrimitiveType, Type[PrimitiveType]]:
     values = get_args(type_)
     assert values
