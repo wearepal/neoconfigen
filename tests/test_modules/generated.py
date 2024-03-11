@@ -60,6 +60,7 @@ class UnionArgConf:
     param4: Any = ""  # Union[DictConfig, str]
     param5: Any = ('foo', 'bar')  # Union[List[str], Tuple[str, ...], str]
     param6: Any = ('foo', 'bar')  # Union[list[str], str, tuple[str, ...]]
+    param7: Union[Path, str] = ""
 
 
 @dataclass

@@ -88,6 +88,7 @@ class UnionArg:
         param4: Union[str, DictConfig] = "",
         param5: Union[str, List[str], Tuple[str, ...]] = ("foo", "bar"),
         param6: Union[str, list[str], tuple[str, ...]] = ("foo", "bar"),
+        param7: str | Path = "",
     ):
         self.param = param
         self.param2 = param2
@@ -95,6 +96,7 @@ class UnionArg:
         self.param4 = param4
         self.param5 = param5
         self.param6 = param6
+        self.param7 = param7
 
     def __eq__(self, other):
         return (
@@ -105,6 +107,7 @@ class UnionArg:
             and other.param4 == self.param4
             and other.param5 == self.param5
             and other.param6 == self.param6
+            and other.param7 == self.param7
         )
 
 

@@ -2,6 +2,7 @@
 import sys
 from enum import Enum
 from pathlib import Path
+from types import UnionType
 from typing import (
     Any,
     List,
@@ -87,7 +88,10 @@ def is_tuple_annotation(type_: Any) -> bool:
 def convert_imports(imports: Set[Type], string_imports: Set[str]) -> List[str]:
     tmp = set()
     for import_ in imports:
-        if import_ is Any:
+        if isinstance(import_, UnionType):
+            tmp.add("from typing import Union")
+            continue
+        elif import_ is Any:
             classname = "Any"
         elif import_ is Optional:  # type: ignore
             classname = "Optional"
