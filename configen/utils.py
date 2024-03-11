@@ -2,6 +2,7 @@
 import sys
 from enum import Enum
 from pathlib import Path
+from types import UnionType
 from typing import (
     Any,
     List,
@@ -26,7 +27,7 @@ PrimitiveType: TypeAlias = Union[
 
 
 def _resolve_literal(
-    type_: Literal,
+    type_: type,
 ) -> Union[PrimitiveType, Type[PrimitiveType]]:
     values = get_args(type_)
     assert values
@@ -87,7 +88,10 @@ def is_tuple_annotation(type_: Any) -> bool:
 def convert_imports(imports: Set[Type], string_imports: Set[str]) -> List[str]:
     tmp = set()
     for import_ in imports:
-        if import_ is Any:
+        if isinstance(import_, UnionType):
+            tmp.add("from typing import Union")
+            continue
+        elif import_ is Any:
             classname = "Any"
         elif import_ is Optional:  # type: ignore
             classname = "Optional"
@@ -105,7 +109,7 @@ def convert_imports(imports: Set[Type], string_imports: Set[str]) -> List[str]:
                 classname = import_.__name__
         if (
             not is_primitive_type_annotation(import_)
-            or issubclass(import_, Enum)
+            or issubclass(import_, Enum)  # type: ignore
             or (import_ is Path)
         ):
             if import_.__module__ != "builtins":
