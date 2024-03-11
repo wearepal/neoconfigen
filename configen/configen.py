@@ -218,7 +218,7 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
 
             if missing_annotation_type or incompatible_annotation_type:
                 type_ = Any
-                collect_imports(imports, Any)
+                collect_imports(imports, Any)  # type: ignore
 
             if not missing_value:
                 if type_ == str or type(default_) == str:  # noqa
@@ -229,7 +229,7 @@ def generate_module(cfg: ConfigenConf, module: ModuleConf) -> str:
                     default_ = f"field(default_factory=lambda: {default_})"
 
             missing_default = True if incompatible_value_type else missing_value
-            collect_imports(imports, type_)
+            collect_imports(imports, type_)  # type: ignore
 
             if missing_default:
                 default_ = "MISSING"

@@ -105,7 +105,7 @@ def convert_imports(imports: Set[Type], string_imports: Set[str]) -> List[str]:
                 classname = import_.__name__
         if (
             not is_primitive_type_annotation(import_)
-            or issubclass(import_, Enum)
+            or issubclass(import_, Enum)  # type: ignore
             or (import_ is Path)
         ):
             if import_.__module__ != "builtins":
